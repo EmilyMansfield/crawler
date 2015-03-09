@@ -1,0 +1,24 @@
+{
+	"item_gp": {
+		"name": "Gold Coin"
+	},
+
+	"item_iron_key": {
+		"name": "Iron Key"
+	},
+
+	"armor_leather": {
+		"name": "Leather Armor",
+		"defense": 1
+	},
+
+	"weapon_dagger": {
+		"name": "Dagger",
+		"damage": 2
+	},
+
+	"weapon_rat_claw": {
+		"name": "_rat_claw",
+		"damage": 1
+	}
+}

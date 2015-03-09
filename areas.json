@@ -1,0 +1,22 @@
+{
+	"area_01": {
+		"description": "You are in a meadow surrounded by trees.",
+		"doors": [
+			["Cave", "North", "area_02"]
+		],
+		"items": [
+			["item_gp", 10],
+			["weapon_dagger", 1]
+		]
+	},
+
+	"area_02": {
+		"description": "You are in a small cave.",
+		"doors": [
+			["Opening", "South", "area_01"]
+		],
+		"creatures": [
+			"rat"
+		]
+	}
+}
