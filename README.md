@@ -1,12 +1,15 @@
 #CRawler#
 
 A small text-based dungeon crawler written in Ruby.
+
 CRawler is designed to be
 
- - Easily extensible. All game data is supplied via JSON files, with the program
+ - Extensible. All game data is supplied via JSON files, with the program
    only handling the game engine.
  - Lightweight. If it can run Ruby, it can run CRawler. After all, there aren't
-   even any graphics
+   even any graphics!
+ - Short. If the documentation is longer than the source code, we're doing
+   something right.
  - Natural. No 'choose option 1 to take the dagger', CRawler uses natural
    language processing to understand simple commands, such as 'take dagger from
    my bag'.
@@ -57,21 +60,21 @@ common to both modes.
 
 ###Explore###
 
-####`take`####
+####`take <item>`####
 You take an object from the environment and put it in your bag.
 
         > take dagger
         You take the Dagger.
 
-You can also take an item from a specific container by adding `from <container>`
-after the command.
+The `take` command accepts the `from` keyword, which changes the container you
+are taking the item from.
 
         > take dagger from here
         You take the Dagger.
         > take gold coin from the area
         You take the Gold Coin.
 
-####`go`####
+####`go <direction>`####
 The `go` command allows you to move around the map, and requires a cardinal
 direction after it. If the path in that direction isn't blocked, you'll go
 that way.
@@ -82,3 +85,31 @@ that way.
 
 You don't have to write out `north` or `west` every time either, you can use the
 shorthand directions `n`, `e`, `s`, and `w`.
+
+####`equip <item>`####
+The behaviour of the `equip` command depends on the target, which should be an
+item in your possession. If the target is a weapon then this command acts like
+`wield`, if it is armor then this command acts like `wear`, and if it is just an
+item then this command acts like `examine`.
+
+        > equip dagger
+        You wield the Dagger.
+
+####`wield <weapon>`####
+The `wield` command puts away your current weapon and draws the new one.
+If the weapon is not a weapon but another type of item, this command is a
+synonym for `equip`.
+
+        > wield dagger
+        You wield the Dagger.
+
+####`wear <armor>`####
+The `wear` command removes your currently worn armor and puts on the new set.
+If the armor is not armor but instead another type of item, this command is a
+synonym for `equip`.
+
+        > wear leather armor
+        You put on the Leather Armor
+
+####`examine <item>`####
+Examines the specified item and displays a short description of it.
