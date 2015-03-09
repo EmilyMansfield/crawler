@@ -2,24 +2,25 @@
 require 'json'
 
 class Item
-  attr_reader :name
-  def initialize(name)
+  attr_reader :name, :description
+  def initialize(name, description)
     @name = name
+    @description = description
   end
 end
 
 class Weapon < Item
   attr_reader :damage
-  def initialize(name, damage)
-    super(name)
+  def initialize(name, description, damage)
+    super(name, description)
     @damage = damage
   end
 end
 
 class Armor < Item
   attr_reader :defense
-  def initialize(name, defense)
-    super(name)
+  def initialize(name, description, defense)
+    super(name, description)
     @defense = defense
   end
 end
@@ -51,22 +52,31 @@ $items = JSON.load(File.open("items.json", "r"))
 $items.each do |k,v|
   type = k.split('_')[0].downcase
   if type == 'item'
-    $items[k] = Item.new(v["name"])
+    $items[k] = Item.new(v["name"], v["description"] || "")
   elsif type == 'weapon'
-    $items[k] = Weapon.new(v["name"], v["damage"])
+    $items[k] = Weapon.new(v["name"], v["description"] || "", v["damage"])
   elsif type == 'armor'
-    $items[k] = Armor.new(v["name"], v["defense"])
+    $items[k] = Armor.new(v["name"], v["description"] || "", v["defense"])
   end
 end
 
 $creatures = JSON.load(File.open("creatures.json", "r"))
 $creatures.each do |k,v|
-  $creatures[k] = Creature.new(v["name"] || "", v["hp"] || 1, v["weapon"], v["armor"], v["hostile"] || false)
+  $creatures[k] = Creature.new(
+    v["name"] || "",
+    v["hp"] || 1,
+    v["weapon"],
+    v["armor"],
+    v["hostile"] || false)
 end
 
 $areas = JSON.load(File.open("areas.json", "r"))
 $areas.each do |k,v|
-  $areas[k] = Area.new(v["description"] || "", v["doors"] || [], v["items"] || [], v["creatures"] || [])
+  $areas[k] = Area.new(
+    v["description"] || "",
+    v["doors"] || [],
+    v["items"] || [],
+    v["creatures"] || [])
   if $areas[k].creatures
     $areas[k].creatures.map! { |x| [x, $creatures[x].dup] }
   end
@@ -116,8 +126,13 @@ def parse_equip(item, player = $player)
     end
     player[0].armor = item
   elsif $items[item].is_a? Item
-    puts "You examine the #{$items[item].name}."
+    parse_examine(item, player)
   end
+end
+
+
+def parse_examine(item, player = $player)
+  puts $items[item].description
 end
 
 def parse_look(player = $player)
@@ -150,7 +165,7 @@ end
 def parse_explore(input, player = $player)
   # Can't figure out the single regex with no internet so I'm cheating and
   # splitting it up. Besides, it works well enough
-  input = input.downcase.split(/(search|take|quit|examine|equip|wield|wear|look|go|n)\s+?(.*)/).delete_if { |x| x.empty? }
+  input = input.downcase.split(/(search|take|quit|examine|inspect|equip|wield|wear|look|go|n)\s+?(.*)/).delete_if { |x| x.empty? }
   input[-1] = input[-1].split(/\s+(from)\s+(.*)/).delete_if { |x| x.empty? }
   input.flatten!
   area = $areas[player[1]]
@@ -191,9 +206,9 @@ def parse_explore(input, player = $player)
     else
       puts "You can't find that item."
     end
-  # examine/wield/equip/wear <item> - Equip the specified item, assuming its
+  # wield/equip/wear <item> - Equip the specified item, assuming its
   # the right type
-  elsif input[0] == "examine" || input[0] == "wield" || input[0] == "equip" || input[0] == "wear"
+  elsif input[0] == "wield" || input[0] == "equip" || input[0] == "wear"
     container = player[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
@@ -204,6 +219,29 @@ def parse_explore(input, player = $player)
       parse_equip(container.items[index][0])
     else
       puts "You don't have that item."
+    end
+  # examine/inspect <item> - Print a description of the item
+  elsif input[0] == "examine" || input[0] == "inspect"
+    # Assume item is in the environment
+    container = parse_container(player[2], player)
+
+    unless input[1]
+      puts "#{input[0].capitalize} what?"
+      return
+    end
+    item = container.items.find { |x| $items[x[0]].name.downcase == input[1].downcase }
+    if item
+      parse_examine(item[0], player)
+    else
+      # Couldn't find the item in the environment, so try the player's bag
+      container = player[0]
+      item = container.items.find { |x| $items[x[0]].name.downcase == input[1].downcase }
+      if item
+        parse_examine(item[0], player)
+      else
+        puts "You can't see a #{input[1].capitalize} anywhere."
+        return
+      end
     end
   # Go <direction> - Go through the door in the specified cardinal direction
   elsif input[0] == "go"

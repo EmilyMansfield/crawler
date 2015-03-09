@@ -1,20 +1,24 @@
 {
 	"item_gp": {
-		"name": "Gold Coin"
+		"name": "Gold Coin",
+		"description": "A golden disk an inch in diameter. It's heavy, and probably worth something."
 	},
 
 	"item_iron_key": {
-		"name": "Iron Key"
+		"name": "Iron Key",
+		"description": "A dull iron key. Quite hefty for it's small size, it would probably fit a door."
 	},
 
 	"armor_leather": {
 		"name": "Leather Armor",
-		"defense": 1
+		"defense": 1,
+		"description": "Armor made from tanned animal hide. It smells a bit funny, but it'd do the job."
 	},
 
 	"weapon_dagger": {
 		"name": "Dagger",
-		"damage": 2
+		"damage": 2,
+		"description": "A small blade, probably made of iron. Keep the sharp end away from your body."
 	},
 
 	"weapon_rat_claw": {
