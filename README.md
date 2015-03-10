@@ -54,11 +54,11 @@ you overcome your foe or manage to escape then you'll end up back in the
 `explore` mode, ready to fight another day.
 
 The commands available in each mode differ, although some such as `wield` are
-common to both modes.
+common to both modes, in which case their behaviour is largely identical.
 
 ##Commands##
 
-###Explore###
+###`explore` Mode###
 
 ####`take <item>`####
 You take an object from the environment and put it in your bag.
@@ -147,3 +147,24 @@ Note that `search` does not pick up the items, you must use `take` for that.
 Also note that `search` changes the active container, so that any `take`
 commands issued after a `search` and up to another container change will assume
 you are trying to `take` an item from that container.
+
+###`combat` Mode###
+
+####`equip <item>`####
+Same behaviour as in the `explore` mode. Takes a combat action if you have the
+specified item.
+
+####`wield <weapon>`####
+Same behaviour as in the `explore` mode. Takes a combat action if you have the
+specified weapon.
+
+####`wear <armor>`####
+Same behaviour as in the `explore` mode. Takes a combat action if you have the
+specified armor.
+
+####`examine <item>`####
+Same behaviour as in the `explore` mode. Takes a combat action if you have the
+specified item.
+
+####`inspect <item>`####
+A synonym for `examine`.
