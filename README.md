@@ -74,6 +74,10 @@ are taking the item from.
         > take gold coin from the area
         You take the Gold Coin.
 
+If the `from` keyword is not given then `take` will assume you are trying to
+`take` an item from the active container, which is the area by default but may
+be changed by certain commands e.g. `search`.
+
 ####`go <direction>`####
 The `go` command allows you to move around the map, and requires a cardinal
 direction after it. If the path in that direction isn't blocked, you'll go
@@ -113,3 +117,33 @@ synonym for `equip`.
 
 ####`examine <item>`####
 Examines the specified item and displays a short description of it.
+
+        > examine dagger
+        A small blade, probably made of iron. Keep the sharp end away from your body.
+
+####`inspect <item>`####
+A synonym for `examine`.
+
+####`look`####
+The `look` command gives a description of the area around you, and lists the
+`doors` and `creatures` nearby. This command is run automatically when you first
+enter an area.
+
+        > look
+        You are in a meadow surrounded by trees.
+        There is a Cave to the North here.
+
+####`search <container>`####
+Searches the specified container for items, and lists what you find. If a
+container is not given then your immediate vicinity - items that are lying
+around and not in barrels or hidden away - is searched instead.
+
+        > search
+        There is a Gold Coin, and a Dagger here.
+        > search my bag
+        There is nothing here.
+
+Note that `search` does not pick up the items, you must use `take` for that.
+Also note that `search` changes the active container, so that any `take`
+commands issued after a `search` and up to another container change will assume
+you are trying to `take` an item from that container.
