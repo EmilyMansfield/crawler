@@ -13,7 +13,9 @@ CRawler is designed to be
 - Natural. No 'choose option 1 to take the dagger', CRawler uses natural
   language processing to understand simple commands, such as 'take dagger from
   my bag'.
-^
+
+  <!-- Hacky hack -->
+
         ----------------------------------------
         You are in a meadow surrounded by trees.
         There is a Cave to the North here.
