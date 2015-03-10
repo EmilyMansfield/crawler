@@ -110,23 +110,32 @@ def parse_container(container, player = $player)
   end
 end
 
-def parse_equip(item, player = $player)
-  if $items[item].is_a? Weapon
-    if player[0].weapon
-      puts "You put away your #{$items[player[0].weapon].name} and wield the #{$items[item].name}."
-    else
-      puts "You wield the #{$items[item].name}"
+def parse_equip(item_name, player = $player)
+  container = player[0]
+  # Get the id of the item from its name
+  item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
+  if item
+    # Ignore the quantity for now
+    item = item[0]
+    if $items[item].is_a? Weapon
+      if player[0].weapon
+        puts "You put away your #{$items[player[0].weapon].name} and wield the #{$items[item].name}."
+      else
+        puts "You wield the #{$items[item].name}"
+      end
+      player[0].weapon = item
+    elsif $items[item].is_a? Armor
+      if player[0].armor
+        puts "You take off the #{$items[player[0].armor].name} and put on the #{$items[item].name}"
+      else
+        puts "You put on the #{$items[item].name}"
+      end
+      player[0].armor = item
+    elsif $items[item].is_a? Item
+      parse_examine(item, player)
     end
-    player[0].weapon = item
-  elsif $items[item].is_a? Armor
-    if player[0].armor
-      puts "You take off the #{$items[player[0].armor].name} and put on the #{$items[item].name}"
-    else
-      puts "You put on the #{$items[item].name}"
-    end
-    player[0].armor = item
-  elsif $items[item].is_a? Item
-    parse_examine(item, player)
+  else
+    puts "You don't have that item."
   end
 end
 
@@ -209,17 +218,11 @@ def parse_explore(input, player = $player)
   # wield/equip/wear <item> - Equip the specified item, assuming its
   # the right type
   elsif input[0] == "wield" || input[0] == "equip" || input[0] == "wear"
-    container = player[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return
     end
-    index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
-    if index
-      parse_equip(container.items[index][0])
-    else
-      puts "You don't have that item."
-    end
+    parse_equip(input[1], player)
   # examine/inspect <item> - Print a description of the item
   elsif input[0] == "examine" || input[0] == "inspect"
     # Assume item is in the environment
