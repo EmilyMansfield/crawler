@@ -20,7 +20,7 @@ def parse_equip(item_name, player = $player)
       end
       player.armor = item
     elsif $items[item].is_a? Item
-      parse_examine(item, player)
+      parse_examine(item_name, player)
     end
   else
     puts "You don't have that item."
@@ -31,7 +31,7 @@ end
 
 def parse_examine(item_name, player = $player)
   # Assume item is in the environment
-  container = parse_container(player.container, player)
+  container = convert_container(player.container, player)
 
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
   if item

@@ -112,7 +112,7 @@ def format_list(array, fmt_str)
 end
 
 # Convert the name of a container into the container itself
-def parse_container(container, player = $player)
+def convert_container(container, player = $player)
   case container
   when 'here', 'the area'
     $areas[player.area]
