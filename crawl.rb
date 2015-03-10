@@ -142,8 +142,25 @@ def parse_equip(item_name, player = $player)
 end
 
 
-def parse_examine(item, player = $player)
-  puts $items[item].description
+def parse_examine(item_name, player = $player)
+  # Assume item is in the environment
+  container = parse_container(player[2], player)
+
+  item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
+  if item
+    puts $items[item[0]].description
+  else
+    # Couldn't find the item in the environment, so try the player's bag
+    container = player[0]
+    item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
+    if item
+      puts $items[item[0]].description
+    else
+      puts "You can't see a #{item_name.capitalize} anywhere."
+      return :invalid
+    end
+  end
+  return nil # Nicer than a nil implicit return?
 end
 
 def parse_look(player = $player)
@@ -227,27 +244,11 @@ def parse_explore(input, player = $player)
     parse_equip(input[1], player)
   # examine/inspect <item> - Print a description of the item
   elsif input[0] == "examine" || input[0] == "inspect"
-    # Assume item is in the environment
-    container = parse_container(player[2], player)
-
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return
     end
-    item = container.items.find { |x| $items[x[0]].name.downcase == input[1].downcase }
-    if item
-      parse_examine(item[0], player)
-    else
-      # Couldn't find the item in the environment, so try the player's bag
-      container = player[0]
-      item = container.items.find { |x| $items[x[0]].name.downcase == input[1].downcase }
-      if item
-        parse_examine(item[0], player)
-      else
-        puts "You can't see a #{input[1].capitalize} anywhere."
-        return
-      end
-    end
+    parse_examine(input[1], player)
   # Go <direction> - Go through the door in the specified cardinal direction
   elsif input[0] == "go"
     parse_go(input[1], player)
@@ -283,6 +284,12 @@ def parse_combat(input, player = $player)
       return :invalid
     end
     outcome = parse_equip(input[1], player)
+  elsif input[0] == "examine" || input[0] == "inspect"
+    unless input[1]
+      puts "#{input[0].capitalize} what?"
+      return :invalid
+    end
+    outcome = parse_examine(input[1], player)
   else
     puts "Invalid command."
     outcome = :invalid
