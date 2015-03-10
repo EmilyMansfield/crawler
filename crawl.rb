@@ -34,6 +34,14 @@ class Creature
   end
 end
 
+class Player < Creature
+  attr_accessor :area, :container, :enemy
+  def initialize(name, hp, area, container = 'here')
+    super(name, hp)
+    @area, @container, @enemy = area, container, nil
+  end
+end
+
 # Description - String containing a description of the area
 # without it's interactable contents
 # Doors - Array containing all doors in the area which have
@@ -105,35 +113,35 @@ end
 def parse_container(container, player = $player)
   case container
   when 'here', 'the area'
-    $areas[player[1]]
+    $areas[player.area]
   when 'me', 'myself', 'my bag'
-    player[0]
+    player
   else
-    $areas[player[1]]
+    $areas[player.area]
   end
 end
 
 def parse_equip(item_name, player = $player)
-  container = player[0]
+  container = player
   # Get the id of the item from its name
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
   if item
     # Ignore the quantity for now
     item = item[0]
     if $items[item].is_a? Weapon
-      if player[0].weapon
-        puts "You put away your #{$items[player[0].weapon].name} and wield the #{$items[item].name}."
+      if player.weapon
+        puts "You put away your #{$items[player.weapon].name} and wield the #{$items[item].name}."
       else
         puts "You wield the #{$items[item].name}"
       end
-      player[0].weapon = item
+      player.weapon = item
     elsif $items[item].is_a? Armor
-      if player[0].armor
-        puts "You take off the #{$items[player[0].armor].name} and put on the #{$items[item].name}"
+      if player.armor
+        puts "You take off the #{$items[player.armor].name} and put on the #{$items[item].name}"
       else
         puts "You put on the #{$items[item].name}"
       end
-      player[0].armor = item
+      player.armor = item
     elsif $items[item].is_a? Item
       parse_examine(item, player)
     end
@@ -147,14 +155,14 @@ end
 
 def parse_examine(item_name, player = $player)
   # Assume item is in the environment
-  container = parse_container(player[2], player)
+  container = parse_container(player.container, player)
 
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
   if item
     puts $items[item[0]].description
   else
     # Couldn't find the item in the environment, so try the player's bag
-    container = player[0]
+    container = player
     item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
     if item
       puts $items[item[0]].description
@@ -167,7 +175,7 @@ def parse_examine(item_name, player = $player)
 end
 
 def parse_look(player = $player)
-  area = $areas[player[1]]
+  area = $areas[player.area]
   puts area.description
   unless area.doors.empty?
     print "There is "
@@ -183,10 +191,10 @@ end
 
 def parse_go(dir, player = $player)
   dir = {"n"=>"north", "e"=>"east", "s"=>"south", "w"=>"west"}[dir] || dir
-  index = $areas[player[1]].doors.index { |x| x[1].downcase == dir }
+  index = $areas[player.area].doors.index { |x| x[1].downcase == dir }
   if index
-    puts "You head #{dir.capitalize} through the #{$areas[player[1]].doors[index][0]}."
-    player[1] = $areas[player[1]].doors[index][2]
+    puts "You head #{dir.capitalize} through the #{$areas[player.area].doors[index][0]}."
+    player.area = $areas[player.area].doors[index][2]
     $displayed_description = false
   else
     puts "You cannot go in that direction."
@@ -199,7 +207,7 @@ def parse_explore(input, player = $player)
   input = input.downcase.split(/(search|take|quit|examine|inspect|equip|wield|wear|look|go|n)\s+?(.*)/).delete_if { |x| x.empty? }
   input[-1] = input[-1].split(/\s+(from)\s+(.*)/).delete_if { |x| x.empty? }
   input.flatten!
-  area = $areas[player[1]]
+  area = $areas[player.area]
 
   # search <container> - Lists items in the container
   if /search/ =~ input[0]
@@ -207,7 +215,7 @@ def parse_explore(input, player = $player)
     container = parse_container(input[1], player)
 
     # Set the active container for the take command
-    player[2] = input[1] || 'here'
+    player.container = input[1] || 'here'
 
     print "There is "
     print "nothing" if container.items.empty?
@@ -215,7 +223,7 @@ def parse_explore(input, player = $player)
     puts " here."
   # take <item> - Take the specified item, if it is there
   elsif /take/ =~ input[0]
-    container = parse_container(player[2], player)
+    container = parse_container(player.container, player)
     container = parse_container(input[3], player) if input[2] && input[2] == "from" && input[3]
 
     unless input[1]
@@ -225,13 +233,13 @@ def parse_explore(input, player = $player)
 
     index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
     if index
-      if container == player[0]
+      if container == player
         item = container.items[index][0]
         parse_equip(item, player)
       else
         item = container.items[index][0]
         puts "You take the #{$items[item].name}."
-        player[0].items << [item, container.items[index][1]]
+        player.items << [item, container.items[index][1]]
         container.items.reject!.with_index { |x,i| i == index }
       end
     else
@@ -269,13 +277,13 @@ end
 
 def parse_combat(input, player = $player)
   input = input.downcase.split(/(attack|strike|equip|wield|examine|wear)\s+?(.*)/).delete_if { |x| x.empty? }
-  enemy = $areas[player[1]].creatures.find { |x| x[0] == player[3] }[1]
+  enemy = $areas[player.area].creatures.find { |x| x[0] == player.enemy }[1]
 
   outcome = nil
 
   if /attack|strike/ =~ input[0]
     if rand < 0.9
-      damage = (player[0].weapon ? $items[player[0].weapon].damage : 1)
+      damage = (player.weapon ? $items[player.weapon].damage : 1)
       enemy.hp -= damage
       puts "You strike the #{enemy.name} for #{damage} damage."
     else
@@ -300,7 +308,7 @@ def parse_combat(input, player = $player)
 
   if enemy.hp <= 0
     outcome = :enemy_slain
-  elsif player[0].hp <= 0
+  elsif player.hp <= 0
     outcome = :player_slain
   end
 
@@ -308,10 +316,7 @@ def parse_combat(input, player = $player)
 end
 
 puts "What's your name?"
-# [class, current area, last container, last enemy id]
-# Note here we use an enemy ID not the enemy itself, this id is relative to
-# the current area
-$player = [Creature.new(gets.chomp, rand(4)+4), "area_01", "here", nil]
+$player = Player.new(gets.chomp, rand(4)+4, "area_01")
 
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
@@ -325,10 +330,10 @@ loop do
       puts '-'*40
       parse_look($player)
       $displayed_description = true
-      unless $areas[$player[1]].creatures.empty?
-        if (index = $areas[$player[1]].creatures.index { |x| x[1].hostile })
-          $player[3] = $areas[$player[1]].creatures[index][0]
-          puts "The #{$creatures[$player[3]].name} attacks!"
+      unless $areas[$player.area].creatures.empty?
+        if (index = $areas[$player.area].creatures.index { |x| x[1].hostile })
+          $player.enemy = $areas[$player.area].creatures[index][0]
+          puts "The #{$creatures[$player.enemy].name} attacks!"
           $mode = :combat
           next
         end
@@ -340,22 +345,22 @@ loop do
     print "~ "
     case parse_combat(gets.chomp!)
     when nil
-      enemy = $areas[$player[1]].creatures.find { |x| x[0] == $player[3] }[1]
+      enemy = $areas[$player.area].creatures.find { |x| x[0] == $player.enemy }[1]
       if rand < 0.9
         damage = (enemy.weapon ? $items[enemy.weapon].damage : 1)
-        $player[0].hp -= damage
+        $player.hp -= damage
         puts "The #{enemy.name} strikes you for #{damage} damage."
       else
         puts "You evade the attack."
       end
-      if $player[0].hp <= 0
+      if $player.hp <= 0
         puts "You die."
         exit
       end
     when :enemy_slain
-      enemy = $areas[$player[1]].creatures.find { |x| x[0] == $player[3] }[1]
+      enemy = $areas[$player.area].creatures.find { |x| x[0] == $player.enemy }[1]
       puts "The #{enemy.name} dies."
-      $areas[$player[1]].creatures.delete_if { |x| x[0] == $player[3] }
+      $areas[$player.area].creatures.delete_if { |x| x[0] == $player.enemy }
       $mode = :explore
       next
     when :player_slain
