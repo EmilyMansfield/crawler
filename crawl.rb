@@ -136,7 +136,9 @@ def parse_equip(item_name, player = $player)
     end
   else
     puts "You don't have that item."
+    return :invalid # Ugly way of telling combat mode not to progress
   end
+  return nil # More ugly combat mode hacks
 end
 
 
@@ -275,18 +277,12 @@ def parse_combat(input, player = $player)
     else
       puts "The #{enemy.name} evades your attack."
     end
-  elsif input[0] == "equip" || input[0] == "wield" || input[0] == "wear" || input[0] == "examine"
+  elsif input[0] == "equip" || input[0] == "wield" || input[0] == "wear"
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return :invalid
     end
-    index = player[0].items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
-    if index
-      parse_equip(player[0].items[index][0])
-    else
-      puts "You don't have that item."
-      return :invalid
-    end
+    outcome = parse_equip(input[1], player)
   else
     puts "Invalid command."
     outcome = :invalid
