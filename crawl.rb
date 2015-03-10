@@ -48,7 +48,7 @@ class Area
   end
 end
 
-$items = JSON.load(File.open("items.json", "r"))
+$items = File.open("items.json") { |f| JSON.load f }
 $items.each do |k,v|
   type = k.split('_')[0].downcase
   if type == 'item'
@@ -60,7 +60,7 @@ $items.each do |k,v|
   end
 end
 
-$creatures = JSON.load(File.open("creatures.json", "r"))
+$creatures = File.open("creatures.json") { |f| JSON.load f }
 $creatures.each do |k,v|
   $creatures[k] = Creature.new(
     v["name"] || "",
@@ -70,7 +70,7 @@ $creatures.each do |k,v|
     v["hostile"] || false)
 end
 
-$areas = JSON.load(File.open("areas.json", "r"))
+$areas = File.open("areas.json") { |f| JSON.load f }
 $areas.each do |k,v|
   $areas[k] = Area.new(
     v["description"] || "",
