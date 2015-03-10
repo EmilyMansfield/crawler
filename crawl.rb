@@ -77,6 +77,8 @@ $areas.each do |k,v|
     v["doors"] || [],
     v["items"] || [],
     v["creatures"] || [])
+  # Can't use ids because creatures are different across areas, even if they
+  # are the same type. Store a new instance of the actual creature instead
   if $areas[k].creatures
     $areas[k].creatures.map! { |x| [x, $creatures[x].dup] }
   end
@@ -99,6 +101,7 @@ def format_list(array, fmt_str)
   str
 end
 
+# Convert the name of a container into the container itself
 def parse_container(container, player = $player)
   case container
   when 'here', 'the area'
@@ -199,7 +202,7 @@ def parse_explore(input, player = $player)
   area = $areas[player[1]]
 
   # search <container> - Lists items in the container
-  if input[0] == 'search'
+  if /search/ =~ input[0]
 
     container = parse_container(input[1], player)
 
@@ -211,7 +214,7 @@ def parse_explore(input, player = $player)
     print format_list(container.items, 'a #{$items[self[0]].name}')
     puts " here."
   # take <item> - Take the specified item, if it is there
-  elsif input[0] == "take"
+  elsif /take/ =~ input[0]
     container = parse_container(player[2], player)
     container = parse_container(input[3], player) if input[2] && input[2] == "from" && input[3]
 
@@ -236,27 +239,27 @@ def parse_explore(input, player = $player)
     end
   # wield/equip/wear <item> - Equip the specified item, assuming its
   # the right type
-  elsif input[0] == "wield" || input[0] == "equip" || input[0] == "wear"
+  elsif /wield|equip|wear/ =~ input[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return
     end
     parse_equip(input[1], player)
   # examine/inspect <item> - Print a description of the item
-  elsif input[0] == "examine" || input[0] == "inspect"
+  elsif /examine|inspect/ =~ input[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return
     end
     parse_examine(input[1], player)
   # Go <direction> - Go through the door in the specified cardinal direction
-  elsif input[0] == "go"
+  elsif /go/ =~ input[0]
     parse_go(input[1], player)
   # Look - Show the description of the current area
-  elsif input[0] == "look"
+  elsif /look/ =~ input[0]
     parse_look(player)
   # quit - Exit the game
-  elsif input[0] == 'quit'
+  elsif /quit|exit/ =~ input[0]
     puts "Goodbye!"
     exit
   else
@@ -270,7 +273,7 @@ def parse_combat(input, player = $player)
 
   outcome = nil
 
-  if input[0] ==  "attack" || input[0] == "strike"
+  if /attack|strike/ =~ input[0]
     if rand < 0.9
       damage = (player[0].weapon ? $items[player[0].weapon].damage : 1)
       enemy.hp -= damage
@@ -278,13 +281,13 @@ def parse_combat(input, player = $player)
     else
       puts "The #{enemy.name} evades your attack."
     end
-  elsif input[0] == "equip" || input[0] == "wield" || input[0] == "wear"
+  elsif /equip|wield|wear/ =~ input[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return :invalid
     end
     outcome = parse_equip(input[1], player)
-  elsif input[0] == "examine" || input[0] == "inspect"
+  elsif /examine|inspect/ =~ input[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return :invalid
