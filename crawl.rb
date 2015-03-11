@@ -166,9 +166,10 @@ loop do
         exit
       end
     when :enemy_slain
-      enemy = $areas[$player.area].creatures.find { |x| x[0] == $player.enemy }[1]
+      enemy_index = $areas[$player.area].creatures.index { |x| x[0] == $player.enemy }
+      enemy = $areas[$player.area].creatures[enemy_index][1]
       puts "The #{enemy.name} dies."
-      $areas[$player.area].creatures.delete_if { |x| x[0] == $player.enemy }
+      $areas[$player.area].creatures.delete_at(enemy_index)
       $mode = :explore
       next
     when :player_slain
