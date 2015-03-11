@@ -77,7 +77,7 @@ def parse_go(player, dir)
   end
 end
 
-def parse_search(player, container_name)
+def parse_search(player, container_name = nil)
   # Set the active container for the take command
   player.container = container_name || 'here'
 
@@ -107,4 +107,9 @@ def parse_take(player, item_name, from = nil, container_name = nil)
   else
     puts "You can't find that item."
   end
+end
+
+def parse_exit(player)
+  puts "Goodbye!"
+  exit
 end
