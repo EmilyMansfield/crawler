@@ -10,25 +10,16 @@ def parse_explore(input, player = $player)
 
   # search <container> - Lists items in the container
   if /search/ =~ input[0]
-
-    container = convert_container(input[1], player)
-
-    # Set the active container for the take command
-    player.container = input[1] || 'here'
-
-    print "There is "
-    print "nothing" if container.items.empty?
-    print format_list(container.items, 'a #{$items[self[0]].name}')
-    puts " here."
+    parse_search(input[1], player)
   # take <item> - Take the specified item, if it is there
   elsif /take/ =~ input[0]
-    container = convert_container(player.container, player)
-    container = convert_container(input[3], player) if input[2] && input[2] == "from" && input[3]
-
     unless input[1]
-      puts "Take what?"
+      puts "#{input[0].capitalize} what?"
       return
     end
+
+    container = convert_container(player.container, player)
+    container = convert_container(input[3], player) if input[2] && input[2] == "from" && input[3]
 
     index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
     if index

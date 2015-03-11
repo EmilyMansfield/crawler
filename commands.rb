@@ -76,3 +76,15 @@ def parse_go(dir, player = $player)
     puts "You cannot go in that direction."
   end
 end
+
+def parse_search(container, player = $player)
+  container = convert_container(input[1], player)
+
+  # Set the active container for the take command
+  player.container = input[1] || 'here'
+
+  print "There is "
+  print "nothing" if container.items.empty?
+  print format_list(container.items, 'a #{$items[self[0]].name}')
+  puts " here."
+end
