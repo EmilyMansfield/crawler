@@ -35,6 +35,19 @@ class Creature
     @hp, @weapon, @armor, @hostile = hp, weapon, armor, hostile
     @items = []
   end
+
+  # Attack the target creature. Returns the damage done, or nil for
+  # a miss
+  def strike(target)
+    return nil unless target.is_a? Creature
+    if rand < 0.9
+      damage = (@weapon ? $items[@weapon].damage : 1)
+      target.hp -= damage
+      damage
+    else
+      nil
+    end
+  end
 end
 
 class Player < Creature
@@ -170,9 +183,8 @@ loop do
     case parse_combat($player, gets.chomp!)
     when nil
       enemy = $areas[$player.area].creatures.find { |x| x[0] == $player.enemy }[1]
-      if rand < 0.9
-        damage = (enemy.weapon ? $items[enemy.weapon].damage : 1)
-        $player.hp -= damage
+      damage = enemy.strike($player)
+      if damage
         puts "The #{enemy.name} strikes you for #{damage} damage."
       else
         puts "You evade the attack."
