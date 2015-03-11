@@ -1,6 +1,6 @@
 require_relative 'commands'
 
-def parse_explore(input, player = $player)
+def parse_explore(player, input)
   # Can't figure out the single regex with no internet so I'm cheating and
   # splitting it up. Besides, it works well enough
   input = input.downcase.split(/(search|take|quit|examine|inspect|equip|wield|wear|look|go|n)\s+?(.*)/).delete_if { |x| x.empty? }
@@ -10,7 +10,7 @@ def parse_explore(input, player = $player)
 
   # search <container> - Lists items in the container
   if /search/ =~ input[0]
-    parse_search(input[1], player)
+    parse_search(player, input[1])
   # take <item> - Take the specified item, if it is there
   elsif /take/ =~ input[0]
     unless input[1]
@@ -18,13 +18,13 @@ def parse_explore(input, player = $player)
       return
     end
 
-    container = convert_container(player.container, player)
-    container = convert_container(input[3], player) if input[2] && input[2] == "from" && input[3]
+    container = convert_container(player, player.container)
+    container = convert_container(player, input[3]) if input[2] && input[2] == "from" && input[3]
 
     index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
     if index
       if container == player
-        parse_equip(input[1], player)
+        parse_equip(player, input[1])
       else
         item = container.items[index][0]
         puts "You take the #{$items[item].name}."
@@ -41,17 +41,17 @@ def parse_explore(input, player = $player)
       puts "#{input[0].capitalize} what?"
       return
     end
-    parse_equip(input[1], player)
+    parse_equip(player, input[1])
   # examine/inspect <item> - Print a description of the item
   elsif /examine|inspect/ =~ input[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return
     end
-    parse_examine(input[1], player)
+    parse_examine(player, input[1])
   # Go <direction> - Go through the door in the specified cardinal direction
   elsif /go/ =~ input[0]
-    parse_go(input[1], player)
+    parse_go(player, input[1])
   # Look - Show the description of the current area
   elsif /look/ =~ input[0]
     parse_look(player)
@@ -64,7 +64,7 @@ def parse_explore(input, player = $player)
   end
 end
 
-def parse_combat(input, player = $player)
+def parse_combat(player, input)
   input = input.downcase.split(/(attack|strike|equip|wield|examine|wear)\s+?(.*)/).delete_if { |x| x.empty? }
   enemy = $areas[player.area].creatures.find { |x| x[0] == player.enemy }[1]
 
@@ -83,13 +83,13 @@ def parse_combat(input, player = $player)
       puts "#{input[0].capitalize} what?"
       return :invalid
     end
-    outcome = parse_equip(input[1], player)
+    outcome = parse_equip(player, input[1])
   elsif /examine|inspect/ =~ input[0]
     unless input[1]
       puts "#{input[0].capitalize} what?"
       return :invalid
     end
-    outcome = parse_examine(input[1], player)
+    outcome = parse_examine(player, input[1])
   else
     puts "Invalid command."
     outcome = :invalid

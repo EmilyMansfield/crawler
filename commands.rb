@@ -1,4 +1,4 @@
-def parse_equip(item_name, player = $player)
+def parse_equip(player, item_name)
   container = player
   # Get the id of the item from its name
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
@@ -29,9 +29,9 @@ def parse_equip(item_name, player = $player)
   return nil # More ugly combat mode hacks
 end
 
-def parse_examine(item_name, player = $player)
+def parse_examine(player, item_name)
   # Assume item is in the environment
-  container = convert_container(player.container, player)
+  container = convert_container(player, player.container)
 
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
   if item
@@ -50,7 +50,7 @@ def parse_examine(item_name, player = $player)
   return nil # Nicer than a nil implicit return?
 end
 
-def parse_look(player = $player)
+def parse_look(player)
   area = $areas[player.area]
   puts area.description
   unless area.doors.empty?
@@ -65,7 +65,7 @@ def parse_look(player = $player)
   end
 end
 
-def parse_go(dir, player = $player)
+def parse_go(player, dir)
   dir = {"n"=>"north", "e"=>"east", "s"=>"south", "w"=>"west"}[dir] || dir
   index = $areas[player.area].doors.index { |x| x[1].downcase == dir }
   if index
@@ -77,11 +77,11 @@ def parse_go(dir, player = $player)
   end
 end
 
-def parse_search(container, player = $player)
-  container = convert_container(input[1], player)
-
+def parse_search(player, container_name)
   # Set the active container for the take command
-  player.container = input[1] || 'here'
+  player.container = container_name || 'here'
+
+  container = convert_container(player, container_name)
 
   print "There is "
   print "nothing" if container.items.empty?

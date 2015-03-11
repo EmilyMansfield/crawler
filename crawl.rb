@@ -112,8 +112,8 @@ def format_list(array, fmt_str)
 end
 
 # Convert the name of a container into the container itself
-def convert_container(container, player = $player)
-  case container
+def convert_container(player, container_name)
+  case container_name
   when 'here', 'the area'
     $areas[player.area]
   when 'me', 'myself', 'my bag'
@@ -148,10 +148,10 @@ loop do
       end
     end
     print "> "
-    parse_explore(gets.chomp!)
+    parse_explore($player, gets.chomp!)
   when :combat
     print "~ "
-    case parse_combat(gets.chomp!)
+    case parse_combat($player, gets.chomp!)
     when nil
       enemy = $areas[$player.area].creatures.find { |x| x[0] == $player.enemy }[1]
       if rand < 0.9
