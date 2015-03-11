@@ -138,13 +138,13 @@ loop do
       puts '-'*40
       parse_look($player)
       $displayed_description = true
-      unless $areas[$player.area].creatures.empty?
-        if (index = $areas[$player.area].creatures.index { |x| x[1].hostile })
-          $player.enemy = $areas[$player.area].creatures[index][0]
-          puts "The #{$creatures[$player.enemy].name} attacks!"
-          $mode = :combat
-          next
-        end
+    end
+    unless $areas[$player.area].creatures.empty?
+      if (index = $areas[$player.area].creatures.index { |x| x[1].hostile })
+        $player.enemy = $areas[$player.area].creatures[index][0]
+        puts "The #{$creatures[$player.enemy].name} attacks!"
+        $mode = :combat
+        next
       end
     end
     print "> "
