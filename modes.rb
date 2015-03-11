@@ -17,6 +17,11 @@ EXPLORE_COMMANDS = [
   [/look/, :parse_look],
   [/quit|exit/, :parse_exit]
 ]
+COMBAT_COMMANDS = [
+  [/attack|strike/, :parse_strike],
+  [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
+  [/examine|inspect/, :parse_examine, 'input[1]', 'what']
+]
 
 def parse_explore(player, input)
   # Can't figure out the single regex with no internet so I'm cheating and
@@ -46,27 +51,17 @@ def parse_combat(player, input)
 
   outcome = nil
 
-  if /attack|strike/ =~ input[0]
-    if rand < 0.9
-      damage = (player.weapon ? $items[player.weapon].damage : 1)
-      enemy.hp -= damage
-      puts "You strike the #{enemy.name} for #{damage} damage."
-    else
-      puts "The #{enemy.name} evades your attack."
+  if COMBAT_COMMANDS.none? do |command|
+      if command[0] =~ input[0]
+        if !input[1] && command.length >= 4
+          puts "#{input[0].capitalize} #{command.last || 'what'}?"
+          outcome = :invalid
+          break
+        end
+        self.method(command[1]).call(*[player, *eval(command[2] || '')])
+        true
+      end
     end
-  elsif /equip|wield|wear/ =~ input[0]
-    unless input[1]
-      puts "#{input[0].capitalize} what?"
-      return :invalid
-    end
-    outcome = parse_equip(player, input[1])
-  elsif /examine|inspect/ =~ input[0]
-    unless input[1]
-      puts "#{input[0].capitalize} what?"
-      return :invalid
-    end
-    outcome = parse_examine(player, input[1])
-  else
     puts "Invalid command."
     outcome = :invalid
   end
