@@ -17,23 +17,7 @@ def parse_explore(player, input)
       puts "#{input[0].capitalize} what?"
       return
     end
-
-    container = convert_container(player, player.container)
-    container = convert_container(player, input[3]) if input[2] && input[2] == "from" && input[3]
-
-    index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
-    if index
-      if container == player
-        parse_equip(player, input[1])
-      else
-        item = container.items[index][0]
-        puts "You take the #{$items[item].name}."
-        player.items << [item, container.items[index][1]]
-        container.items.reject!.with_index { |x,i| i == index }
-      end
-    else
-      puts "You can't find that item."
-    end
+    parse_take(player, *input[1..3])
   # wield/equip/wear <item> - Equip the specified item, assuming its
   # the right type
   elsif /wield|equip|wear/ =~ input[0]

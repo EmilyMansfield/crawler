@@ -20,7 +20,7 @@ def parse_equip(player, item_name)
       end
       player.armor = item
     elsif $items[item].is_a? Item
-      parse_examine(item_name, player)
+      parse_examine(player, item_name)
     end
   else
     puts "You don't have that item."
@@ -87,4 +87,24 @@ def parse_search(player, container_name)
   print "nothing" if container.items.empty?
   print format_list(container.items, 'a #{$items[self[0]].name}')
   puts " here."
+end
+
+def parse_take(player, item_name, from = nil, container_name = nil)
+  container = convert_container(player, (from ? container_name : player.container))
+
+  item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
+  # index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
+  # if index
+  if item
+    if container == player
+      parse_equip(player, item_name)
+    else
+      # item = container.items[index][0]
+      puts "You take the #{$items[item[0]].name}."
+      player.items << [item[0], item[1]]
+      container.items.reject! { |x| x == item }
+    end
+  else
+    puts "You can't find that item."
+  end
 end
