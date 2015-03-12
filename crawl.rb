@@ -29,19 +29,19 @@ end
 
 class Creature
   attr_reader :name, :description
-  attr_accessor :hp, :weapon, :armor, :items, :hostile
-  def initialize(name, description, hp, weapon = nil, armor = nil, hostile = false)
+  attr_accessor :hp, :weapon, :armor, :items, :hostile, :evasion
+  def initialize(name, description, hp, evasion = 0.0, weapon = nil, armor = nil, hostile = false)
     @name, @description, = name, description
-    @hp, @weapon, @armor, @hostile = hp, weapon, armor, hostile
+    @hp, @evasion, @weapon, @armor, @hostile = hp, evasion, weapon, armor, hostile
     @items = []
   end
 
-  # Attack the target creature. Returns the damage done, or nil for
-  # a miss
+  # Attack the target creature. Returns the damage done, or nil for a miss
   def strike(target)
     return nil unless target.is_a? Creature
-    if rand < 0.9
-      damage = (@weapon ? $items[@weapon].damage : 1)
+    if rand > target.evasion
+      damage = (@weapon ? $items[@weapon].damage : 1) - (target.armor ? $items[target.armor].defense : 0)
+      damage = 1 if damage < 1
       target.hp -= damage
       damage
     else
@@ -90,6 +90,7 @@ $creatures.each do |k,v|
     v["name"] || "",
     v["description"] || "",
     v["hp"] || 1,
+    v["evasion"],
     v["weapon"],
     v["armor"],
     v["hostile"] || false)

@@ -6,7 +6,8 @@
 		],
 		"items": [
 			["item_gp", 10],
-			["weapon_dagger", 1]
+			["weapon_dagger", 1],
+			["armor_leather", 1]
 		]
 	},
 
