@@ -22,11 +22,13 @@ COMBAT_COMMANDS = [
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what']
 ]
+EXPLORE_REGEX = /(search|take|wield|equip|wear|examine|inspect|go|look|quit|exit)\s+?(.*)/
+COMBAT_REGEX = /(attack|strike|wield|equip|wear|examine|inspect)\s+?(.*)/
 
 def parse_explore(player, input)
   # Can't figure out the single regex with no internet so I'm cheating and
   # splitting it up. Besides, it works well enough
-  input = input.downcase.split(/(search|take|quit|examine|inspect|equip|wield|wear|look|go|n)\s+?(.*)/).delete_if { |x| x.empty? }
+  input = input.downcase.split(EXPLORE_REGEX).delete_if { |x| x.empty? }
   input[-1] = input[-1].split(/\s+(from)\s+(.*)/).delete_if { |x| x.empty? }
   input.flatten!
   area = $areas[player.area]
@@ -46,7 +48,7 @@ def parse_explore(player, input)
 end
 
 def parse_combat(player, input)
-  input = input.downcase.split(/(attack|strike|equip|wield|examine|wear)\s+?(.*)/).delete_if { |x| x.empty? }
+  input = input.downcase.split(COMBAT_REGEX).delete_if { |x| x.empty? }
   enemy = $areas[player.area].creatures.find { |x| x[0] == player.enemy }[1]
 
   outcome = nil
