@@ -31,7 +31,7 @@ end
 
 def parse_examine(player, item_name)
   # Assume item is in the environment
-  container = convert_container(player, player.container)
+  container = convert_command_target(player, player.container, true)
 
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
   if item
@@ -88,7 +88,7 @@ def parse_search(player, container_name = nil)
   # Set the active container for the take command
   player.container = container_name || 'here'
 
-  container = convert_container(player, container_name)
+  container = convert_command_target(player, container_name, true)
 
   print "There is "
   print "nothing" if container.items.empty?
@@ -97,7 +97,7 @@ def parse_search(player, container_name = nil)
 end
 
 def parse_take(player, item_name, from = nil, container_name = 'here')
-  container = convert_container(player, container_name)
+  container = convert_command_target(player, container_name, true)
   item = container.items.find { |x| $items[x[0]].name.downcase == item_name }
   if item
     if container == player

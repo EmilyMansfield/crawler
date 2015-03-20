@@ -113,26 +113,15 @@ def format_list(array, fmt_str)
   str
 end
 
-# Convert the name of a container into the container itself
-def convert_container(player, container_name)
-  case container_name
-  when 'here', 'the area'
-    $areas[player.area]
-  when 'me', 'myself', 'my bag'
-    player
-  else
-    $areas[player.area]
-  end
-end
-
 # Convert the command target into an actual object
-def convert_command_target(player, target)
+def convert_command_target(player, target, containers_only = false)
   case target
   when 'here', 'the area', 'my surroundings'
     $areas[player.area]
   when 'me', 'myself', 'my bag'
     player
   else
+    return $areas[player.area] if containers_only
     # Target type priority is
     # - Creature in the area
     # - Item in the player's surroundings
