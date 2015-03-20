@@ -138,8 +138,8 @@ def convert_command_target(player, target)
     # - Item in the player's surroundings
     # - Item in the player's current container
     # If still the target is not found, return nil
-    if (creature = $areas[player.area].creatures.find { |x| x.name.downcase == target })
-      creature
+    if (creature = $areas[player.area].creatures.find { |x| x[1].name.downcase == target })
+      creature[1]
     elsif (item = $areas[player.area].items.find { |x| $items[x[0]].name.downcase == target  })
       $items[item[0]]
     elsif (item = player.items.find { |x| $items[x[0]].name.downcase == target })
