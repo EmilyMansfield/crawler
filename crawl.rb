@@ -28,10 +28,11 @@ class Armor < Item
 end
 
 class Creature
-  attr_reader :name
+  attr_reader :name, :description
   attr_accessor :hp, :weapon, :armor, :items, :hostile
-  def initialize(name, hp, weapon = nil, armor = nil, hostile = false)
-    @name, @hp, @weapon, @armor, @hostile = name, hp, weapon, armor, hostile
+  def initialize(name, description, hp, weapon = nil, armor = nil, hostile = false)
+    @name, @description, = name, description
+    @hp, @weapon, @armor, @hostile = hp, weapon, armor, hostile
     @items = []
   end
 end
@@ -74,6 +75,7 @@ $creatures = File.open("creatures.json") { |f| JSON.load f }
 $creatures.each do |k,v|
   $creatures[k] = Creature.new(
     v["name"] || "",
+    v["description"] || "",
     v["hp"] || 1,
     v["weapon"],
     v["armor"],
