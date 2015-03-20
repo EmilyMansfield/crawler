@@ -50,18 +50,25 @@ def parse_examine(player, item_name)
   return nil # Nicer than a nil implicit return?
 end
 
-def parse_look(player)
-  area = $areas[player.area]
-  puts area.description
-  unless area.doors.empty?
-    print "There is "
-    print format_list(area.doors, 'a #{self[0]} to the #{self[1]}') 
-    puts " here."
-  end
-  unless area.creatures.empty?
-    print "There is "
-    print format_list(area.creatures, 'a #{self[1].name}')
-    puts " here."
+def parse_look(player, at = nil, look_target = 'here')
+  target = (at ? convert_command_target(player, look_target) : $areas[player.area])
+  # If the player asked for the current area, display
+  # a description for the area along with the doors
+  # and the creatures
+  if target == $areas[player.area]
+    puts target.description
+    unless target.doors.empty?
+      print "There is "
+      print format_list(target.doors, 'a #{self[0]} to the #{self[1]}')
+      puts " here."
+    end
+    unless target.creatures.empty?
+      print "There is "
+      print format_list(target.creatures, 'a #{self[1].name}')
+      puts " here."
+    end
+  else
+    puts target.description
   end
 end
 
@@ -89,17 +96,13 @@ def parse_search(player, container_name = nil)
   puts " here."
 end
 
-def parse_take(player, item_name, from = nil, container_name = nil)
-  container = convert_container(player, (from ? container_name : player.container))
-
-  item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
-  # index = container.items.index { |x| $items[x[0]].name.downcase == input[1].downcase }
-  # if index
+def parse_take(player, item_name, from = nil, container_name = 'here')
+  container = convert_container(player, container_name)
+  item = container.items.find { |x| $items[x[0]].name.downcase == item_name }
   if item
     if container == player
       parse_equip(player, item_name)
     else
-      # item = container.items[index][0]
       puts "You take the #{$items[item[0]].name}."
       player.items << [item[0], item[1]]
       container.items.reject! { |x| x == item }

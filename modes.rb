@@ -14,7 +14,7 @@ EXPLORE_COMMANDS = [
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what'],
   [/go/, :parse_go, 'input[1]', 'where'],
-  [/look/, :parse_look],
+  [/look/, :parse_look, 'input[1..2]'],
   [/quit|exit/, :parse_exit]
 ]
 COMBAT_COMMANDS = [
@@ -29,8 +29,9 @@ def parse_explore(player, input)
   # Can't figure out the single regex with no internet so I'm cheating and
   # splitting it up. Besides, it works well enough
   input = input.downcase.split(EXPLORE_REGEX).delete_if { |x| x.empty? }
-  input[-1] = input[-1].split(/\s+(from)\s+(.*)/).delete_if { |x| x.empty? }
+  input[-1] = input[-1].split(/(from|at)\s+/).delete_if { |x| x.empty? }
   input.flatten!
+  input.map! { |x| x.strip }
   area = $areas[player.area]
 
   if EXPLORE_COMMANDS.none? do |command|

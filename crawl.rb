@@ -40,7 +40,7 @@ end
 class Player < Creature
   attr_accessor :area, :container, :enemy
   def initialize(name, hp, area, container = 'here')
-    super(name, hp)
+    super(name, "It's me.", hp)
     @area, @container, @enemy = area, container, nil
   end
 end
@@ -122,6 +122,31 @@ def convert_container(player, container_name)
     player
   else
     $areas[player.area]
+  end
+end
+
+# Convert the command target into an actual object
+def convert_command_target(player, target)
+  case target
+  when 'here', 'the area', 'my surroundings'
+    $areas[player.area]
+  when 'me', 'myself', 'my bag'
+    player
+  else
+    # Target type priority is
+    # - Creature in the area
+    # - Item in the player's surroundings
+    # - Item in the player's current container
+    # If still the target is not found, return nil
+    if (creature = $areas[player.area].creatures.find { |x| x.name.downcase == target })
+      creature
+    elsif (item = $areas[player.area].items.find { |x| $items[x[0]].name.downcase == target  })
+      $items[item[0]]
+    elsif (item = player.items.find { |x| $items[x[0]].name.downcase == target })
+      $items[item[0]]
+    else
+      $areas[player.area]
+    end
   end
 end
 
