@@ -30,24 +30,13 @@ def parse_equip(player, item_name)
 end
 
 def parse_examine(player, item_name)
-  # Assume item is in the environment
-  container = convert_command_target(player, player.container, true)
-
-  item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
-  if item
-    puts $items[item[0]].description
+  item = convert_command_target(player, item_name)
+  if item.is_a? Item
+    puts item.description
   else
-    # Couldn't find the item in the environment, so try the player's bag
-    container = player
-    item = container.items.find { |x| $items[x[0]].name.downcase == item_name.downcase }
-    if item
-      puts $items[item[0]].description
-    else
-      puts "You can't see a #{item_name.capitalize} anywhere."
-      return :invalid
-    end
+    puts "You can't see a #{item_name.capitalize} anywhere."
+    return :invalid
   end
-  return nil # Nicer than a nil implicit return?
 end
 
 def parse_look(player, at = nil, look_target = 'here')
