@@ -22,8 +22,12 @@ COMBAT_COMMANDS = [
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what']
 ]
-EXPLORE_REGEX = /(search|take|wield|equip|wear|examine|inspect|go|look|quit|exit)\s+?(.*)/
-COMBAT_REGEX = /(attack|strike|wield|equip|wear|examine|inspect)\s+?(.*)/
+EXPLORE_REGEX = Regexp.new(
+  "(#{(0...EXPLORE_COMMANDS.length).each_with_object("") { |i, s| s << EXPLORE_COMMANDS[i][0].source << '|' }.chop})\s+?(.*)"
+)
+COMBAT_REGEX = Regexp.new(
+  "(#{(0...COMBAT_COMMANDS.length).each_with_object("") { |i, s| s << COMBAT_COMMANDS[i][0].source << '|' }.chop})\s+?(.*)"
+)
 
 def parse_explore(player, input)
   # Can't figure out the single regex with no internet so I'm cheating and
