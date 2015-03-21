@@ -29,10 +29,11 @@ end
 
 class Creature
   attr_reader :name, :description
-  attr_accessor :hp, :weapon, :armor, :items, :hostile, :evasion
-  def initialize(name, description, hp, evasion = 0.0, weapon = nil, armor = nil, hostile = false)
+  attr_accessor :hp, :strength, :agility, :evasionm :weapon, :armor, :items, :hostile
+  def initialize(name, description, hp, strength, agility, evasion = 0.0, weapon = nil, armor = nil, hostile = false)
     @name, @description, = name, description
-    @hp, @evasion, @weapon, @armor, @hostile = hp, evasion, weapon, armor, hostile
+    @hp, @strength, @agility, @evasion = hp, strength, agility, evasion
+    @weapon, @armor, @hostile = weapon, armor, hostile
     @items = []
   end
 
@@ -40,8 +41,15 @@ class Creature
   def strike(target)
     return nil unless target.is_a? Creature
     if rand > target.evasion
-      damage = (@weapon ? $items[@weapon].damage : 1) - (target.armor ? $items[target.armor].defense : 0)
-      damage = 1 if damage < 1
+      attack = @strength + (@weapon ? $items[@weapon].damage : 0)
+      defense = target.agility + (target.armor ? $items[target.armor] : 0)
+      if rand(32) != 0
+        damage_base = (attack - defense / 2.0)
+        damage = rand((damage_base / 4)..(damage_base / 2)).to_i
+        damage = rand(2) if damage < 1
+      else
+        damage = rand((attack/2)..(attack))
+      end
       target.hp -= damage
       damage
     else
@@ -52,8 +60,8 @@ end
 
 class Player < Creature
   attr_accessor :area, :container, :enemy
-  def initialize(name, hp, area, container = 'here')
-    super(name, "It's me.", hp)
+  def initialize(name, hp, strength, agility, evasio, area, container = 'here')
+    super(name, "It's me.", hp, strength, agility, evasion)
     @area, @container, @enemy = area, container, nil
   end
 end
@@ -90,6 +98,8 @@ $creatures.each do |k,v|
     v["name"] || "",
     v["description"] || "",
     v["hp"] || 1,
+    v["strength"] || 1,
+    v["agility"] || 1,
     v["evasion"],
     v["weapon"],
     v["armor"],
@@ -154,7 +164,7 @@ def convert_command_target(player, target, containers_only = false)
 end
 
 puts "What's your name?"
-$player = Player.new(gets.chomp, rand(4)+4, "area_01")
+$player = Player.new(gets.chomp, 15, 4, 4, 1.0/64, "area_01")
 
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
