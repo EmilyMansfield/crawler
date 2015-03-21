@@ -8,13 +8,14 @@ class Mode
     @commands = commands
     # Shamelessly long one-liner
     @regexp = Regexp.new("(#{(0...@commands.length).each_with_object("") { |i, s| s << @commands[i][0].source << '|' }.chop})\\s+?(.*)")
-    @modifier_regexp = (modifiers ? Regexp.new("\\s+(#{modifiers.source})\\s+(.*)") : nil)
+    @modifier_regexp = (modifiers ? Regexp.new("(#{modifiers.source})\\s+(.*)") : nil)
   end
 
   def parse(player, input, &block)
     input = input.downcase.split(@regexp).delete_if { |x| x.empty? }
     input[-1] = input[-1].split(@modifier_regexp).delete_if { |x| x.empty? }
     input.flatten!
+    input.map! { |x| x.strip }
 
     if @commands.none? do |command|
         if command[0] =~ input[0]
@@ -46,9 +47,9 @@ $mode_explore = Mode.new([
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what'],
   [/go/, :parse_go, 'input[1]', 'where'],
-  [/look/, :parse_look],
+  [/look/, :parse_look, 'input[1..2]'],
   [/quit|exit/, :parse_exit]],
-  /from/
+  /from|at/
 )
 $mode_combat = Mode.new([
   [/attack|strike/, :parse_strike],

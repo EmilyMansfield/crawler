@@ -28,10 +28,11 @@ class Armor < Item
 end
 
 class Creature
-  attr_reader :name
+  attr_reader :name, :description
   attr_accessor :hp, :weapon, :armor, :items, :hostile
-  def initialize(name, hp, weapon = nil, armor = nil, hostile = false)
-    @name, @hp, @weapon, @armor, @hostile = name, hp, weapon, armor, hostile
+  def initialize(name, description, hp, weapon = nil, armor = nil, hostile = false)
+    @name, @description, = name, description
+    @hp, @weapon, @armor, @hostile = hp, weapon, armor, hostile
     @items = []
   end
 end
@@ -39,7 +40,7 @@ end
 class Player < Creature
   attr_accessor :area, :container, :enemy
   def initialize(name, hp, area, container = 'here')
-    super(name, hp)
+    super(name, "It's me.", hp)
     @area, @container, @enemy = area, container, nil
   end
 end
@@ -74,6 +75,7 @@ $creatures = File.open("creatures.json") { |f| JSON.load f }
 $creatures.each do |k,v|
   $creatures[k] = Creature.new(
     v["name"] || "",
+    v["description"] || "",
     v["hp"] || 1,
     v["weapon"],
     v["armor"],
@@ -111,15 +113,29 @@ def format_list(array, fmt_str)
   str
 end
 
-# Convert the name of a container into the container itself
-def convert_container(player, container_name)
-  case container_name
-  when 'here', 'the area'
+# Convert the command target into an actual object
+def convert_command_target(player, target, containers_only = false)
+  case target
+  when 'here', 'the area', 'my surroundings'
     $areas[player.area]
   when 'me', 'myself', 'my bag'
     player
   else
-    $areas[player.area]
+    return $areas[player.area] if containers_only
+    # Target type priority is
+    # - Creature in the area
+    # - Item in the player's surroundings
+    # - Item in the player's current container
+    # If still the target is not found, return nil
+    if (creature = $areas[player.area].creatures.find { |x| x[1].name.downcase == target })
+      creature[1]
+    elsif (item = $areas[player.area].items.find { |x| $items[x[0]].name.downcase == target  })
+      $items[item[0]]
+    elsif (item = player.items.find { |x| $items[x[0]].name.downcase == target })
+      $items[item[0]]
+    else
+      $areas[player.area]
+    end
   end
 end
 
