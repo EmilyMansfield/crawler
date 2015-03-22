@@ -14,6 +14,16 @@ class Mode
   end
 
   def parse(player, input, &block)
+    # Check for history usage via ! syntax and replace input if needed
+    # !n    nth command in history. First command is 1, not 0
+    # !-n   nth command before this one in history
+    # !!    shorthand for !-1
+    /!(?:(-){0,1}(\d+))|(?:(!))/ =~ input
+    if $1 || $3
+      input = @history[-($2 || 1).to_i] # Need parens as nil.to_i == 0
+    elsif $2
+      input = @history[$2.to_i-1]
+    end
     @history << input
     @history.shift if @history.length > @@max_history
     input = input.downcase.split(@regexp).delete_if { |x| x.empty? }
