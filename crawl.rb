@@ -29,10 +29,10 @@ end
 
 class Creature
   attr_reader :name, :description
-  attr_accessor :hp, :strength, :agility, :evasionm :weapon, :armor, :items, :hostile
-  def initialize(name, description, hp, strength, agility, evasion = 0.0, weapon = nil, armor = nil, hostile = false)
-    @name, @description, = name, description
-    @hp, @strength, @agility, @evasion = hp, strength, agility, evasion
+  attr_accessor :hp, :strength, :agility, :evasion, :xp, :weapon, :armor, :items, :hostile
+  def initialize(name, description, hp, strength, agility, evasion, xp, weapon = nil, armor = nil, hostile = false)
+    @name, @description = name, description
+    @hp, @strength, @agility, @evasion, @xp = hp, strength, agility, evasion, xp
     @weapon, @armor, @hostile = weapon, armor, hostile
     @items = []
   end
@@ -59,10 +59,25 @@ class Creature
 end
 
 class Player < Creature
-  attr_accessor :area, :container, :enemy
-  def initialize(name, hp, strength, agility, evasio, area, container = 'here')
-    super(name, "It's me.", hp, strength, agility, evasion)
+  attr_accessor :area, :container, :enemy, :level
+  def initialize(name, hp, strength, agility, evasion, area, container = 'here')
+    super(name, "It's me", hp, strength, agility, evasion, 0)
     @area, @container, @enemy = area, container, nil
+    @level = 1
+  end
+
+  def get_xp(xp)
+    @xp += xp
+    loop do
+      break if @xp < 1.5*@level**3
+      # Enough xp to level up
+      @level += 1
+      # First number is stat to modify, second is the growth factor
+      [[:@strength, 6], [:@agility, 6], [:@hp, 6*1.3]].each do |x|
+        # It's either this or on the fly symbol manipulation
+        self.instance_variable_set(x[0], (self.instance_variable_get(x[0])+1+x[1]*Math.tanh(@level/30.0)*((@level%2)+1)).to_i)
+      end
+    end
   end
 end
 
@@ -100,7 +115,8 @@ $creatures.each do |k,v|
     v["hp"] || 1,
     v["strength"] || 1,
     v["agility"] || 1,
-    v["evasion"],
+    v["evasion"] || 0,
+    v["xp"] || 1,
     v["weapon"],
     v["armor"],
     v["hostile"] || false)
@@ -208,6 +224,8 @@ loop do
       enemy_index = $areas[$player.area].creatures.index { |x| x[0] == $player.enemy }
       enemy = $areas[$player.area].creatures[enemy_index][1]
       puts "The #{enemy.name} dies."
+      puts "You gain #{enemy.xp} experience."
+      $player.xp += enemy.xp
       $areas[$player.area].creatures.delete_at(enemy_index)
       $mode = :explore
       next
