@@ -28,8 +28,8 @@ class Armor < Item
 end
 
 class Creature
-  attr_reader :name, :description
-  attr_accessor :hp, :strength, :agility, :evasion, :xp, :weapon, :armor, :items, :hostile
+  attr_reader :name, :description, :xp
+  attr_accessor :hp, :strength, :agility, :evasion, :weapon, :armor, :items, :hostile
   def initialize(name, description, hp, strength, agility, evasion, xp, weapon = nil, armor = nil, hostile = false)
     @name, @description = name, description
     @hp, @strength, @agility, @evasion, @xp = hp, strength, agility, evasion, xp
@@ -42,7 +42,7 @@ class Creature
     return nil unless target.is_a? Creature
     if rand > target.evasion
       attack = @strength + (@weapon ? $items[@weapon].damage : 0)
-      defense = target.agility + (target.armor ? $items[target.armor] : 0)
+      defense = target.agility + (target.armor ? $items[target.armor].defense : 0)
       if rand(32) != 0
         damage_base = (attack - defense / 2.0)
         damage = rand((damage_base / 4)..(damage_base / 2)).to_i
@@ -72,10 +72,17 @@ class Player < Creature
       break if @xp < 1.5*@level**3
       # Enough xp to level up
       @level += 1
-      # First number is stat to modify, second is the growth factor
-      [[:@strength, 6], [:@agility, 6], [:@hp, 6*1.3]].each do |x|
-        # It's either this or on the fly symbol manipulation
-        self.instance_variable_set(x[0], (self.instance_variable_get(x[0])+1+x[1]*Math.tanh(@level/30.0)*((@level%2)+1)).to_i)
+      # This assignment is necessary as blocks/procs can't access their arguments
+      # within themselves and we need to know the length of the longest
+      # stat to tabulate correctly
+      stats = [[:@strength, 6], [:@agility, 6], [:@hp, 6*1.3]]
+      stats.each do |x|
+        before = self.instance_variable_get(x[0])
+        after = (before + 1 + x[1] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
+        self.instance_variable_set(x[0], after)
+        print x[0].to_s[1..-1].capitalize
+        print ' '*(stats.max{|a,b|a[0].length<=>b[0].length}[0].length-x[0].length+1)
+        puts "#{before}\t-> #{after}"
       end
     end
   end
@@ -225,7 +232,7 @@ loop do
       enemy = $areas[$player.area].creatures[enemy_index][1]
       puts "The #{enemy.name} dies."
       puts "You gain #{enemy.xp} experience."
-      $player.xp += enemy.xp
+      $player.get_xp(enemy.xp)
       $areas[$player.area].creatures.delete_at(enemy_index)
       $mode = :explore
       next
