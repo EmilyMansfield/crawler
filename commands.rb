@@ -109,7 +109,7 @@ end
 def parse_strike(player)
   enemy = $areas[player.area].creatures.find { |x| x[0] == player.enemy }[1]
   damage = player.strike(enemy)
-  if damage
+  if damage && damage > 0
     puts "You strike the #{enemy.name} for #{damage} damage."
   else
     puts "The #{enemy.name} evades your attack."
