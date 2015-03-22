@@ -13,7 +13,7 @@ class Mode
     @history = []
   end
 
-  def parse(player, input, &block)
+  def parse(player, input)
     # Check for history usage via ! syntax and replace input if needed
     # !n    nth command in history. First command is 1, not 0
     # !-n   nth command before this one in history
@@ -49,7 +49,6 @@ class Mode
       puts "Invalid command."
       return :invalid
     end
-    yield if block_given?
   end
 end
 # Each array entry is a new command, with a regexp to match

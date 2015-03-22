@@ -212,39 +212,38 @@ loop do
       end
     end
     print "> "
-    $mode_explore.parse($player, gets.chomp!)
+    redo if $mode_explore.parse($player, gets.chomp!) == :invalid
   when :combat
     print "~ "
-    $mode_combat.parse($player, gets.chomp!) do
-      enemy_index = $areas[$player.area].creatures.index { |x| x[0] == $player.enemy }
-      enemy = $areas[$player.area].creatures[enemy_index][1]
-      # Enemy dies
-      if enemy.hp <= 0
-        puts "The #{enemy.name} dies."
-        # Grant experience
-        puts "You gain #{enemy.xp} experience."
-        $player.get_xp(enemy.xp)
-        # Remove the dead enemy
-        $areas[$player.area].creatures.delete_at(enemy_index)
-        $mode = :explore
-        next
-      # Player dies
-      elsif $player.hp <= 0
+    redo if $mode_combat.parse($player, gets.chomp!) == :invalid
+    enemy_index = $areas[$player.area].creatures.index { |x| x[0] == $player.enemy }
+    enemy = $areas[$player.area].creatures[enemy_index][1]
+    # Enemy dies
+    if enemy.hp <= 0
+      puts "The #{enemy.name} dies."
+      # Grant experience
+      puts "You gain #{enemy.xp} experience."
+      $player.get_xp(enemy.xp)
+      # Remove the dead enemy
+      $areas[$player.area].creatures.delete_at(enemy_index)
+      $mode = :explore
+      next
+    # Player dies
+    elsif $player.hp <= 0
+      puts "You die."
+      exit
+    # Combat still ongoing
+    else
+      # Enemy attacks the player so deal damage
+      damage = enemy.strike($player)
+      if damage
+        puts "The #{enemy.name} strikes you for #{damage} damage."
+      else
+        puts "You evade the attack."
+      end
+      if $player.hp <= 0
         puts "You die."
         exit
-      # Combat still ongoing
-      else
-        # Enemy attacks the player so deal damage
-        damage = enemy.strike($player)
-        if damage
-          puts "The #{enemy.name} strikes you for #{damage} damage."
-        else
-          puts "You evade the attack."
-        end
-        if $player.hp <= 0
-          puts "You die."
-          exit
-        end
       end
     end
   end
