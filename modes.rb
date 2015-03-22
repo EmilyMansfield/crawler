@@ -26,6 +26,11 @@ class Mode
     end
     @history << input
     @history.shift if @history.length > @@max_history
+    if /history/ =~ input
+      @history.each_with_index { |x, i| puts "#{i+1}\t#{x}" }
+      return :invalid # System commands shouldn't advance time either
+    end
+
     input = input.downcase.split(@regexp).delete_if { |x| x.empty? }
     input[-1] = input[-1].split(@modifier_regexp).delete_if { |x| x.empty? }
     input.flatten!
