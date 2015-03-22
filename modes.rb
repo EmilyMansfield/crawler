@@ -75,18 +75,3 @@ $mode_combat = Mode.new([
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what']]
 )
-
-def parse_explore(player, input)
-  $mode_explore.parse(player, input)
-end
-
-def parse_combat(player, input)
-  outcome = $mode_combat.parse(player, input) do
-    enemy = $areas[player.area].creatures.find { |x| x[0] == player.enemy }[1]
-    if enemy.hp <= 0
-      :enemy_slain
-    elsif player.hp <= 0
-      :player_slain
-    end
-  end
-end
