@@ -1,7 +1,8 @@
 require_relative 'commands'
 
 class Mode
-  attr_reader :regexp, :modifier_regexp, :commands
+  @@max_history = 100
+  attr_reader :regexp, :modifier_regexp, :commands, :history
   # modifiers should be a single regexp containing the modifiers
   # such as from or at
   def initialize(commands, modifiers = nil)
@@ -9,9 +10,12 @@ class Mode
     # Shamelessly long one-liner
     @regexp = Regexp.new("(#{(0...@commands.length).each_with_object("") { |i, s| s << @commands[i][0].source << '|' }.chop})\\s+?(.*)")
     @modifier_regexp = (modifiers ? Regexp.new("(#{modifiers.source})\\s+(.*)") : nil)
+    @history = []
   end
 
   def parse(player, input, &block)
+    @history << input
+    @history.shift if @history.length > @@max_history
     input = input.downcase.split(@regexp).delete_if { |x| x.empty? }
     input[-1] = input[-1].split(@modifier_regexp).delete_if { |x| x.empty? }
     input.flatten!
