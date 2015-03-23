@@ -195,6 +195,11 @@ $mode = :explore
 
 $displayed_description = false
 loop do
+  if $player.hp <= 0
+    puts "You die."
+    exit
+  end
+
   case $mode
   when :explore
     unless $displayed_description
@@ -228,10 +233,6 @@ loop do
       $areas[$player.area].creatures.delete_at(enemy_index)
       $mode = :explore
       next
-    # Player dies
-    elsif $player.hp <= 0
-      puts "You die."
-      exit
     # Combat still ongoing
     else
       # Enemy attacks the player so deal damage
@@ -240,10 +241,6 @@ loop do
         puts "The #{enemy.name} strikes you for #{damage} damage."
       else
         puts "You evade the attack."
-      end
-      if $player.hp <= 0
-        puts "You die."
-        exit
       end
     end
   end
