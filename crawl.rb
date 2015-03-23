@@ -146,25 +146,26 @@ $areas.each do |k,v|
 end
 
 # Load saved data
-$save_data = File.open("save.json") { |f| JSON.load f }
-$save_data.each do |k, v|
-  if $areas.has_key? k
-    # It's an area so modify the area with the data
-    $areas[k].items = v["items"] if v["items"]
-    $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
+def load(player)
+  return false unless File.exist?(player.name + ".json")
+  $save_data = File.open(player.name + ".json") { |f| JSON.load f }
+  $save_data.each do |k, v|
+    if $areas.has_key? k
+      # It's an area so modify the area with the data
+      $areas[k].items = v["items"] if v["items"]
+      $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
+    end
   end
 end
 
 # Save modified areas
-def save
+def save(player)
   save_data = {}
   $areas.each do |k, v|
     save_data[k] = {"items" => v.items, "creatures" => v.creatures.map { |x| x[0] }} if v.modified
   end
-  File.open("save.json", "w") { |f| f.write(JSON.generate(save_data)) }
+  File.open(player.name + ".json", "w") { |f| f.write(JSON.generate(save_data)) }
 end
-
-at_exit { save }
 
 # Prints the contents of the array using the format string fmt_str but adds
 # natural english connectives. fmt_str must use self as the interpolation
@@ -211,6 +212,7 @@ end
 
 puts "What's your name?"
 $player = Player.new(gets.chomp, 15, 4, 4, 1.0/64, "area_01")
+load($player)
 
 # explore - Movement and environment interaction
 # combat - Fighting an enemy

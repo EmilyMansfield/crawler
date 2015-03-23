@@ -103,6 +103,7 @@ end
 
 def parse_exit(player)
   puts "Goodbye!"
+  save(player)
   exit
 end
 
