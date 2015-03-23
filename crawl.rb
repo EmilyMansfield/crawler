@@ -97,9 +97,10 @@ end
 # Creatures - Array of actual creatures in the area, NOT ids
 class Area
   attr_reader :description, :doors
-  attr_accessor :items, :creatures
+  attr_accessor :items, :creatures, :modified
   def initialize(description, doors, items, creatures)
     @description, @doors, @items, @creatures = description, doors, items, creatures
+    @modified = false
   end
 end
 
@@ -153,6 +154,17 @@ $save_data.each do |k, v|
     $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
   end
 end
+
+# Save modified areas
+def save
+  save_data = {}
+  $areas.each do |k, v|
+    save_data[k] = {"items" => v.items, "creatures" => v.creatures.map { |x| x[0] }} if v.modified
+  end
+  File.open("save.json", "w") { |f| f.write(JSON.generate(save_data)) }
+end
+
+at_exit { save }
 
 # Prints the contents of the array using the format string fmt_str but adds
 # natural english connectives. fmt_str must use self as the interpolation
@@ -216,6 +228,7 @@ loop do
     unless $displayed_description
       puts '-'*40
       parse_look($player)
+      $areas[$player.area].modified = true
       $displayed_description = true
     end
     unless $areas[$player.area].creatures.empty?
