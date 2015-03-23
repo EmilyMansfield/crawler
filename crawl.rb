@@ -96,7 +96,8 @@ end
 # Items - Array of arrays of form [id, quantity]
 # Creatures - Array of actual creatures in the area, NOT ids
 class Area
-  attr_reader :description, :doors, :items, :creatures
+  attr_reader :description, :doors
+  attr_accessor :items, :creatures
   def initialize(description, doors, items, creatures)
     @description, @doors, @items, @creatures = description, doors, items, creatures
   end
@@ -140,6 +141,16 @@ $areas.each do |k,v|
   # are the same type. Store a new instance of the actual creature instead
   if $areas[k].creatures
     $areas[k].creatures.map! { |x| [x, $creatures[x].dup] }
+  end
+end
+
+# Load saved data
+$save_data = File.open("save.json") { |f| JSON.load f }
+$save_data.each do |k, v|
+  if $areas.has_key? k
+    # It's an area so modify the area with the data
+    $areas[k].items = v["items"] if v["items"]
+    $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
   end
 end
 
