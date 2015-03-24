@@ -1,15 +1,15 @@
 class Item
   attr_reader :name, :description
-  def initialize(name, description)
-    @name = name
-    @description = description
+  def initialize(opts)
+    opts = {name: '', description: ''}.merge(opts)
+    opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
   end
 end
 
 class Weapon < Item
   attr_reader :damage
   def initialize(name, description, damage)
-    super(name, description)
+    super(name: name, description: description)
     @damage = damage
   end
 end
@@ -17,7 +17,7 @@ end
 class Armor < Item
   attr_reader :defense
   def initialize(name, description, defense)
-    super(name, description)
+    super(name: name, description: description)
     @defense = defense
   end
 end

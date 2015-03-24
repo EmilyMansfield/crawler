@@ -7,7 +7,7 @@ def load_data
   $items.each do |k,v|
     type = k.split('_')[0].downcase
     if type == 'item'
-      $items[k] = Item.new(v["name"], v["description"] || "")
+      $items[k] = Item.new(name: v["name"], description: v["description"])
     elsif type == 'weapon'
       $items[k] = Weapon.new(v["name"], v["description"] || "", v["damage"])
     elsif type == 'armor'
