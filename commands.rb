@@ -1,3 +1,6 @@
+require_relative 'utility'
+require_relative 'saving'
+
 def parse_equip(player, item_name)
   container = player
   # Get the id of the item from its name
