@@ -60,10 +60,10 @@ end
 
 class Player < Creature
   attr_accessor :area, :container, :enemy, :level
-  def initialize(name, hp, strength, agility, evasion, area, container = 'here')
-    super(name, "It's me", hp, strength, agility, evasion, 0)
+  def initialize(name, hp, strength, agility, evasion, level, xp, area, container = 'here')
+    super(name, "It's me", hp, strength, agility, evasion, xp)
     @area, @container, @enemy = area, container, nil
-    @level = 1
+    @level = level
   end
 
   def get_xp(xp)
@@ -148,7 +148,7 @@ end
 # Load saved data
 def load(player_name)
   # Create a new player if that player doesn't exist
-  return Player.new(player_name, 15, 4, 4, 1.0/64, "area_01") unless File.exist?(player_name + ".json")
+  return Player.new(player_name, 15, 4, 4, 1.0/64, 1, 0, "area_01") unless File.exist?(player_name + ".json")
   player = nil
   $save_data = File.open(player_name + ".json") { |f| JSON.load f }
   $save_data.each do |k, v|
@@ -166,6 +166,8 @@ def load(player_name)
         v["strength"] || 4,
         v["agility"] || 4,
         v["evasion"] || 1.0/64,
+        v["level"] || 1,
+        v["xp"] || 0,
         v["area"] || "area_01")
     end
   end
@@ -185,6 +187,8 @@ def save(player)
     "strength" => player.strength,
     "agility" => player.agility,
     "evasion" => player.evasion,
+    "level" => player.level,
+    "xp" => player.xp,
     "area" => player.area
   }
   File.open(player.name + ".json", "w") { |f| f.write(JSON.generate(save_data)) }
@@ -235,7 +239,7 @@ end
 
 puts "What's your name?"
 $player = load(gets.chomp)
-puts "HP: #{$player.hp}"
+puts "HP: #{$player.hp} XP: #{$player.xp}"
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
 $mode = :explore
