@@ -1,5 +1,11 @@
 require_relative 'entities'
 
+class Hash
+  def internalize_keys
+    self.each_with_object({}) { |(k,v),h| h[k.to_sym] = v }
+  end
+end
+
 # Load items, creatures, and areas from the relevant
 # JSON files. Yes it uses global variables, forgive me
 def load_data
@@ -9,22 +15,22 @@ def load_data
     if type == 'item'
       # Can't pass the JSON hash directly as the keys must be
       # symbols not strings, we must convert them first
-      $items[k] = Item.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
+      $items[k] = Item.new(v.internalize_keys)
     elsif type == 'weapon'
-      $items[k] = Weapon.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
+      $items[k] = Weapon.new(v.internalize_keys)
     elsif type == 'armor'
-      $items[k] = Armor.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
+      $items[k] = Armor.new(v.internalize_keys)
     end
   end
 
   $creatures = File.open("creatures.json") { |f| JSON.load f }
   $creatures.each do |k,v|
-    $creatures[k] = Creature.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
+    $creatures[k] = Creature.new(v.internalize_keys)
   end
 
   $areas = File.open("areas.json") { |f| JSON.load f }
   $areas.each do |k,v|
-    $areas[k] = Area.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
+    $areas[k] = Area.new(v.internalize_keys)
     # Can't use ids because creatures are different across areas, even if they
     # are the same type. Store a new instance of the actual creature instead
     if $areas[k].creatures
@@ -51,7 +57,7 @@ def load(player_name)
       # It's the player so create the player from the data
       # We use "player" as the key and not player_name to stop
       # id conflicts (accidental or deliberate)
-      player = Player.new((v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v }).merge!({name: player_name}))
+      player = Player.new((v.internalize_keys).merge!({name: player_name}))
     end
   end
   return player
