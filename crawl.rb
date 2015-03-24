@@ -48,8 +48,11 @@ def convert_command_target(player, target, containers_only = false)
   end
 end
 
+# Load game data and player
+load_data
 puts "What's your name?"
 $player = load(gets.chomp)
+
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
 $mode = :explore

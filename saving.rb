@@ -1,43 +1,47 @@
 require_relative 'entities'
 
-$items = File.open("items.json") { |f| JSON.load f }
-$items.each do |k,v|
-  type = k.split('_')[0].downcase
-  if type == 'item'
-    $items[k] = Item.new(v["name"], v["description"] || "")
-  elsif type == 'weapon'
-    $items[k] = Weapon.new(v["name"], v["description"] || "", v["damage"])
-  elsif type == 'armor'
-    $items[k] = Armor.new(v["name"], v["description"] || "", v["defense"])
+# Load items, creatures, and areas from the relevant
+# JSON files. Yes it uses global variables, forgive me
+def load_data
+  $items = File.open("items.json") { |f| JSON.load f }
+  $items.each do |k,v|
+    type = k.split('_')[0].downcase
+    if type == 'item'
+      $items[k] = Item.new(v["name"], v["description"] || "")
+    elsif type == 'weapon'
+      $items[k] = Weapon.new(v["name"], v["description"] || "", v["damage"])
+    elsif type == 'armor'
+      $items[k] = Armor.new(v["name"], v["description"] || "", v["defense"])
+    end
   end
-end
 
-$creatures = File.open("creatures.json") { |f| JSON.load f }
-$creatures.each do |k,v|
-  $creatures[k] = Creature.new(
-    v["name"] || "",
-    v["description"] || "",
-    v["hp"] || 1,
-    v["strength"] || 1,
-    v["agility"] || 1,
-    v["evasion"] || 0,
-    v["xp"] || 1,
-    v["weapon"],
-    v["armor"],
-    v["hostile"] || false)
-end
+  $creatures = File.open("creatures.json") { |f| JSON.load f }
+  $creatures.each do |k,v|
+    $creatures[k] = Creature.new(
+      v["name"] || "",
+      v["description"] || "",
+      v["hp"] || 1,
+      v["strength"] || 1,
+      v["agility"] || 1,
+      v["evasion"] || 0,
+      v["xp"] || 1,
+      v["weapon"],
+      v["armor"],
+      v["hostile"] || false)
+  end
 
-$areas = File.open("areas.json") { |f| JSON.load f }
-$areas.each do |k,v|
-  $areas[k] = Area.new(
-    v["description"] || "",
-    v["doors"] || [],
-    v["items"] || [],
-    v["creatures"] || [])
-  # Can't use ids because creatures are different across areas, even if they
-  # are the same type. Store a new instance of the actual creature instead
-  if $areas[k].creatures
-    $areas[k].creatures.map! { |x| [x, $creatures[x].dup] }
+  $areas = File.open("areas.json") { |f| JSON.load f }
+  $areas.each do |k,v|
+    $areas[k] = Area.new(
+      v["description"] || "",
+      v["doors"] || [],
+      v["items"] || [],
+      v["creatures"] || [])
+    # Can't use ids because creatures are different across areas, even if they
+    # are the same type. Store a new instance of the actual creature instead
+    if $areas[k].creatures
+      $areas[k].creatures.map! { |x| [x, $creatures[x].dup] }
+    end
   end
 end
 
