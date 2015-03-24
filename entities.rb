@@ -1,35 +1,36 @@
 class Item
   attr_reader :name, :description
   def initialize(opts)
-    opts = {name: '', description: ''}.merge(opts)
+    opts = { name: '', description: '' }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
   end
 end
 
 class Weapon < Item
   attr_reader :damage
-  def initialize(name, description, damage)
-    super(name: name, description: description)
-    @damage = damage
+  def initialize(opts)
+    opts = { damage: '' }.merge(opts)
+    opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
+    super(opts)
   end
 end
 
 class Armor < Item
   attr_reader :defense
-  def initialize(name, description, defense)
-    super(name: name, description: description)
-    @defense = defense
+  def initialize(opts)
+    opts = { defense: '' }.merge(opts)
+    opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
+    super(opts)
   end
 end
 
 class Creature
   attr_reader :name, :description, :xp
   attr_accessor :hp, :strength, :agility, :evasion, :weapon, :armor, :items, :hostile
-  def initialize(name, description, hp, strength, agility, evasion, xp, weapon = nil, armor = nil, hostile = false)
-    @name, @description = name, description
-    @hp, @strength, @agility, @evasion, @xp = hp, strength, agility, evasion, xp
-    @weapon, @armor, @hostile = weapon, armor, hostile
-    @items = []
+  def initialize(opts)
+    opts = { name: '', description: '', hp: 1, strength: 1, agility: 1,
+      evasion: 0, xp: 0, weapon: nil, armor: nil, hostile: false, items: [] }.merge(opts)
+    opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
   end
 
   # Attack the target creature. Returns the damage done, or nil for a miss
@@ -55,10 +56,11 @@ end
 
 class Player < Creature
   attr_accessor :area, :container, :enemy, :level
-  def initialize(name, hp, strength, agility, evasion, level, xp, area, container = 'here')
-    super(name, "It's me", hp, strength, agility, evasion, xp)
-    @area, @container, @enemy = area, container, nil
-    @level = level
+  def initialize(opts)
+    opts = { area: 'area_01', description: "It's you", container: 'here',
+      enemy: nil, level: 1 }.merge(opts)
+    opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
+    super(opts)
   end
 
   def increase_xp(xp)
@@ -93,8 +95,9 @@ end
 class Area
   attr_reader :description, :doors
   attr_accessor :items, :creatures, :modified
-  def initialize(description, doors, items, creatures)
-    @description, @doors, @items, @creatures = description, doors, items, creatures
+  def initialize(opts)
+    opts = { description: '', doors: [], items: [], creatures: [] }.merge(opts)
+    opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
     @modified = false
   end
 end

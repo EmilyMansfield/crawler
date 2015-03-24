@@ -7,36 +7,24 @@ def load_data
   $items.each do |k,v|
     type = k.split('_')[0].downcase
     if type == 'item'
-      $items[k] = Item.new(name: v["name"], description: v["description"])
+      # Can't pass the JSON hash directly as the keys must be
+      # symbols not strings, we must convert them first
+      $items[k] = Item.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
     elsif type == 'weapon'
-      $items[k] = Weapon.new(v["name"], v["description"] || "", v["damage"])
+      $items[k] = Weapon.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
     elsif type == 'armor'
-      $items[k] = Armor.new(v["name"], v["description"] || "", v["defense"])
+      $items[k] = Armor.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
     end
   end
 
   $creatures = File.open("creatures.json") { |f| JSON.load f }
   $creatures.each do |k,v|
-    $creatures[k] = Creature.new(
-      v["name"] || "",
-      v["description"] || "",
-      v["hp"] || 1,
-      v["strength"] || 1,
-      v["agility"] || 1,
-      v["evasion"] || 0,
-      v["xp"] || 1,
-      v["weapon"],
-      v["armor"],
-      v["hostile"] || false)
+    $creatures[k] = Creature.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
   end
 
   $areas = File.open("areas.json") { |f| JSON.load f }
   $areas.each do |k,v|
-    $areas[k] = Area.new(
-      v["description"] || "",
-      v["doors"] || [],
-      v["items"] || [],
-      v["creatures"] || [])
+    $areas[k] = Area.new(v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v })
     # Can't use ids because creatures are different across areas, even if they
     # are the same type. Store a new instance of the actual creature instead
     if $areas[k].creatures
@@ -48,7 +36,10 @@ end
 # Load saved data
 def load(player_name)
   # Create a new player if that player doesn't exist
-  return Player.new(player_name, 15, 4, 4, 1.0/64, 1, 0, "area_01") unless File.exist?(player_name + ".json")
+  unless File.exist?(player_name + ".json")
+    return Player.new(name: player_name, hp: 15, strength: 4, agility: 4,
+      evasion: 1.0/64, level: 1, xp: 0, area: "area_01") 
+  end
   player = nil
   $save_data = File.open(player_name + ".json") { |f| JSON.load f }
   $save_data.each do |k, v|
@@ -60,18 +51,7 @@ def load(player_name)
       # It's the player so create the player from the data
       # We use "player" as the key and not player_name to stop
       # id conflicts (accidental or deliberate)
-      player = Player.new(
-        player_name,
-        v["hp"] || 15,
-        v["strength"] || 4,
-        v["agility"] || 4,
-        v["evasion"] || 1.0/64,
-        v["level"] || 1,
-        v["xp"] || 0,
-        v["area"] || "area_01")
-      player.items = v["items"] if v["items"]
-      player.weapon = v["weapon"] if v["weapon"]
-      player.armor = v["armor"] if v["armor"]
+      player = Player.new((v.each_with_object({}) { |(k,v),h| h[k.to_sym] = v }).merge!({name: player_name}))
     end
   end
   return player
