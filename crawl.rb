@@ -66,7 +66,7 @@ class Player < Creature
     @level = 1
   end
 
-  def get_xp(xp)
+  def increase_xp(xp)
     @xp += xp
     loop do
       break if @xp < 1.5*@level**3
@@ -96,9 +96,11 @@ end
 # Items - Array of arrays of form [id, quantity]
 # Creatures - Array of actual creatures in the area, NOT ids
 class Area
-  attr_reader :description, :doors, :items, :creatures
+  attr_reader :description, :doors
+  attr_accessor :items, :creatures, :modified
   def initialize(description, doors, items, creatures)
     @description, @doors, @items, @creatures = description, doors, items, creatures
+    @modified = false
   end
 end
 
@@ -141,6 +143,51 @@ $areas.each do |k,v|
   if $areas[k].creatures
     $areas[k].creatures.map! { |x| [x, $creatures[x].dup] }
   end
+end
+
+# Load saved data
+def load(player_name)
+  # Create a new player if that player doesn't exist
+  return Player.new(player_name, 15, 4, 4, 1.0/64, "area_01") unless File.exist?(player_name + ".json")
+  player = nil
+  $save_data = File.open(player_name + ".json") { |f| JSON.load f }
+  $save_data.each do |k, v|
+    if $areas.has_key? k
+      # It's an area so modify the area with the data
+      $areas[k].items = v["items"] if v["items"]
+      $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
+    elsif k == "player"
+      # It's the player so create the player from the data
+      # We use "player" as the key and not player_name to stop
+      # id conflicts (accidental or deliberate)
+      player = Player.new(
+        player_name,
+        v["hp"] || 15,
+        v["strength"] || 4,
+        v["agility"] || 4,
+        v["evasion"] || 1.0/64,
+        v["area"] || "area_01")
+    end
+  end
+  return player
+end
+
+# Save modified areas
+def save(player)
+  save_data = {}
+  # Add the modified areas
+  $areas.each do |k, v|
+    save_data[k] = {"items" => v.items, "creatures" => v.creatures.map { |x| x[0] }} if v.modified
+  end
+  # Add the player
+  save_data["player"] = {
+    "hp" => player.hp,
+    "strength" => player.strength,
+    "agility" => player.agility,
+    "evasion" => player.evasion,
+    "area" => player.area
+  }
+  File.open(player.name + ".json", "w") { |f| f.write(JSON.generate(save_data)) }
 end
 
 # Prints the contents of the array using the format string fmt_str but adds
@@ -187,8 +234,8 @@ def convert_command_target(player, target, containers_only = false)
 end
 
 puts "What's your name?"
-$player = Player.new(gets.chomp, 15, 4, 4, 1.0/64, "area_01")
-
+$player = load(gets.chomp)
+puts "HP: #{$player.hp}"
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
 $mode = :explore
@@ -205,6 +252,7 @@ loop do
     unless $displayed_description
       puts '-'*40
       parse_look($player)
+      $areas[$player.area].modified = true
       $displayed_description = true
     end
     unless $areas[$player.area].creatures.empty?
@@ -228,7 +276,7 @@ loop do
       puts "The #{enemy.name} dies."
       # Grant experience
       puts "You gain #{enemy.xp} experience."
-      $player.get_xp(enemy.xp)
+      $player.increase_xp(enemy.xp)
       # Remove the dead enemy
       $areas[$player.area].creatures.delete_at(enemy_index)
       $mode = :explore
