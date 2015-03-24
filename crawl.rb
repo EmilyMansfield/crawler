@@ -146,24 +146,47 @@ $areas.each do |k,v|
 end
 
 # Load saved data
-def load(player)
-  return false unless File.exist?(player.name + ".json")
-  $save_data = File.open(player.name + ".json") { |f| JSON.load f }
+def load(player_name)
+  # Create a new player if that player doesn't exist
+  return Player.new(player_name, 15, 4, 4, 1.0/64, "area_01") unless File.exist?(player_name + ".json")
+  player = nil
+  $save_data = File.open(player_name + ".json") { |f| JSON.load f }
   $save_data.each do |k, v|
     if $areas.has_key? k
       # It's an area so modify the area with the data
       $areas[k].items = v["items"] if v["items"]
       $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
+    elsif k == "player"
+      # It's the player so create the player from the data
+      # We use "player" as the key and not player_name to stop
+      # id conflicts (accidental or deliberate)
+      player = Player.new(
+        player_name,
+        v["hp"] || 15,
+        v["strength"] || 4,
+        v["agility"] || 4,
+        v["evasion"] || 1.0/64,
+        v["area"] || "area_01")
     end
   end
+  return player
 end
 
 # Save modified areas
 def save(player)
   save_data = {}
+  # Add the modified areas
   $areas.each do |k, v|
     save_data[k] = {"items" => v.items, "creatures" => v.creatures.map { |x| x[0] }} if v.modified
   end
+  # Add the player
+  save_data["player"] = {
+    "hp" => player.hp,
+    "strength" => player.strength,
+    "agility" => player.agility,
+    "evasion" => player.evasion,
+    "area" => player.area
+  }
   File.open(player.name + ".json", "w") { |f| f.write(JSON.generate(save_data)) }
 end
 
@@ -211,9 +234,8 @@ def convert_command_target(player, target, containers_only = false)
 end
 
 puts "What's your name?"
-$player = Player.new(gets.chomp, 15, 4, 4, 1.0/64, "area_01")
-load($player)
-
+$player = load(gets.chomp)
+puts "HP: #{$player.hp}"
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
 $mode = :explore
