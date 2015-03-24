@@ -169,6 +169,9 @@ def load(player_name)
         v["level"] || 1,
         v["xp"] || 0,
         v["area"] || "area_01")
+      player.items = v["items"] if v["items"]
+      player.weapon = v["weapon"] if v["weapon"]
+      player.armor = v["armor"] if v["armor"]
     end
   end
   return player
@@ -189,8 +192,11 @@ def save(player)
     "evasion" => player.evasion,
     "level" => player.level,
     "xp" => player.xp,
-    "area" => player.area
+    "area" => player.area,
+    "items" => player.items
   }
+  save_data["player"]["weapon"] = player.weapon if player.weapon
+  save_data["player"]["armor"] = player.armor if player.armor
   File.open(player.name + ".json", "w") { |f| f.write(JSON.generate(save_data)) }
 end
 
