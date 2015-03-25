@@ -43,7 +43,8 @@ loop do
     redo if $mode_explore.parse($player, gets.chomp!) == :invalid
   when :combat
     print "~ "
-    redo if $mode_combat.parse($player, gets.chomp!) == :invalid
+    outcome = $mode_combat.parse($player, gets.chomp!)
+    redo if outcome == :invalid || outcome == :change_mode
     enemy_index = $areas[$player.area].creatures.index { |x| x[0] == $player.enemy }
     enemy = $areas[$player.area].creatures[enemy_index][1]
     # Enemy dies
@@ -58,6 +59,15 @@ loop do
       next
     # Combat still ongoing
     else
+      # Enemy will flee if the player is sufficiently strong
+      # Move to a random area like the player? Currently just delete
+      if $player.strength >= 2*enemy.strength && rand(4) == 0
+        puts "The #{enemy.name} flees."
+        # No experience :(
+        $areas[$player.area].creatures.delete_at(enemy_index)
+        $mode = :explore
+        next
+      end
       # Enemy attacks the player so deal damage
       damage = enemy.strike($player)
       if damage

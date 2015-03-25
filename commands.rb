@@ -119,3 +119,22 @@ def parse_strike(player)
     puts "The #{enemy.name} evades your attack."
   end
 end
+
+def parse_flee(player)
+  enemy = $areas[player.area].creatures.find { |x| x[0] == player.enemy }[1]
+  if player.agility * rand >= enemy.agility * rand * 0.75
+    # Choose a random exit
+    door = $areas[player.area].doors.sample
+    if door
+      puts "You flee #{door[1].capitalize} through the #{door[0]}!"
+      player.area = door[2]
+      $displayed_description = false
+      $mode = :explore # Less hacky way of doing this?
+      :change_mode
+    else
+      puts "There's nowhere to run!"
+    end
+  else
+    puts "The enemy blocks the way!"
+  end
+end

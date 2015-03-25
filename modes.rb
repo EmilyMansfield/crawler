@@ -42,8 +42,8 @@ class Mode
             puts "#{input[0].capitalize} #{command.last || 'what'}?"
             return :invalid
           end
-          self.method(command[1]).call(*[player, *eval(command[2] || '')])
-          true # Hacky but whatever
+          outcome = self.method(command[1]).call(*[player, *eval(command[2] || '')]) 
+          return (outcome == nil ? true : outcome)
         end
       end
       puts "Invalid command."
@@ -72,5 +72,6 @@ $mode_explore = Mode.new([
 $mode_combat = Mode.new([
   [/attack|strike/, :parse_strike],
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
-  [/examine|inspect/, :parse_examine, 'input[1]', 'what']]
+  [/examine|inspect/, :parse_examine, 'input[1]', 'what'],
+  [/flee/, :parse_flee]]
 )
