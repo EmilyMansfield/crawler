@@ -32,7 +32,7 @@ class Mode
     end
 
     input = input.downcase.split(@regexp).delete_if { |x| x.empty? }
-    input[-1] = input[-1].split(@modifier_regexp).delete_if { |x| x.empty? }
+    input[-1] = input[-1].split(@modifier_regexp).delete_if { |x| x.empty? } if @modifier_regexp
     input.flatten!
     input.map! { |x| x.strip }
 
