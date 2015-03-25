@@ -43,7 +43,8 @@ loop do
     redo if $mode_explore.parse($player, gets.chomp!) == :invalid
   when :combat
     print "~ "
-    redo if $mode_combat.parse($player, gets.chomp!) == :invalid
+    outcome = $mode_combat.parse($player, gets.chomp!)
+    redo if outcome == :invalid || outcome == :change_mode
     enemy_index = $areas[$player.area].creatures.index { |x| x[0] == $player.enemy }
     enemy = $areas[$player.area].creatures[enemy_index][1]
     # Enemy dies
