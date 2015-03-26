@@ -18,7 +18,7 @@ end
 # Convert the command target into an actual object
 def convert_command_target(player, target, containers_only = false)
   case target
-  when 'here', 'the area', 'my surroundings'
+  when 'here', 'area', 'my surroundings'
     $areas[player.area]
   when 'me', 'myself', 'my bag'
     player

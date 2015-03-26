@@ -34,7 +34,8 @@ class Mode
     input = input.downcase.split(@regexp).delete_if { |x| x.empty? }
     input[-1] = input[-1].split(@modifier_regexp).delete_if { |x| x.empty? } if @modifier_regexp
     input.flatten!
-    input.map! { |x| x.strip }
+    # Reject definite article by removing substring of `the `
+    input.map! { |x| x.strip.gsub(/the /, '') }
 
     if @commands.none? do |command|
         if command[0] =~ input[0]
