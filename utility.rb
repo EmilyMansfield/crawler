@@ -36,7 +36,7 @@ def convert_command_target(player, target, containers_only = false)
     elsif (item = player.items.find { |x| $items[x[0]].name.downcase == target })
       $items[item[0]]
     else
-      $areas[player.area]
+      nil
     end
   end
 end

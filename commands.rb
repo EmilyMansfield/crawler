@@ -33,13 +33,7 @@ def parse_equip(player, item_name)
 end
 
 def parse_examine(player, item_name)
-  item = convert_command_target(player, item_name)
-  if item.is_a? Item
-    puts item.description
-  else
-    puts "You can't see a #{item_name.capitalize} anywhere."
-    return :invalid
-  end
+  parse_look(player, true, item_name)
 end
 
 def parse_look(player, at = nil, look_target = 'here')
@@ -59,8 +53,11 @@ def parse_look(player, at = nil, look_target = 'here')
       print format_list(target.creatures, 'a #{self[1].name}')
       puts " here."
     end
-  else
+  elsif target != nil
     puts target.description
+  else
+    puts "You can't see a #{look_target} anywhere"
+    return :invalid
   end
 end
 
