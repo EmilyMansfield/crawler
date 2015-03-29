@@ -18,7 +18,7 @@ class Item < Entity
   def initialize(opts)
     opts = { name: '', description: '' }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
-    super(opts[:name], opts[:description])
+    super(opts[:name], opts[:description], opts[:name_plural])
   end
 end
 
@@ -47,7 +47,7 @@ class Creature < Entity
     opts = { name: '', description: '', hp: 1, strength: 1, agility: 1,
       evasion: 0, xp: 0, weapon: nil, armor: nil, hostile: false, items: [] }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
-    super(opts[:name], opts[:description])
+    super(opts[:name], opts[:description], opts[:name_plural])
   end
 
   # Attack the target creature. Returns the damage done, or nil for a miss

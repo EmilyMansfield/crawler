@@ -1,11 +1,13 @@
 {
 	"item_gp": {
 		"name": "Gold Coin",
+		"name_plural": "Gold Coins",
 		"description": "A golden disk an inch in diameter. It's heavy, and probably worth something."
 	},
 
 	"item_iron_key": {
 		"name": "Iron Key",
+		"name_plural": "Iron Keys",
 		"description": "A dull iron key. Quite hefty for it's small size, it would probably fit a door."
 	},
 
@@ -17,6 +19,7 @@
 
 	"weapon_dagger": {
 		"name": "Dagger",
+		"name_plural": "Daggers",
 		"damage": 2,
 		"description": "A small blade, probably made of iron. Keep the sharp end away from your body."
 	},
