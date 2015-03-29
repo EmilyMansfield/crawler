@@ -79,9 +79,9 @@ def parse_search(player, container_name = nil)
 
   container = convert_command_target(player, container_name, true)
 
-  print "There is "
+  print "There #{container.items[0][1] == 1 ? 'is ' : 'are '}"
   print "nothing" if container.items.empty?
-  print format_list(container.items, 'a #{$items[self[0]].name}')
+  print format_list(container.items, '#{self[1] == 1 ? "a " : ""}#{$items[self[0]].name(self[1])}')
   puts " here."
 end
 
@@ -92,7 +92,7 @@ def parse_take(player, item_name, from = nil, container_name = 'here')
     if container == player
       parse_equip(player, item_name)
     else
-      puts "You take the #{$items[item[0]].name}."
+      puts "You take the #{$items[item[0]].name(item[1])}."
       player.items << item
       container.items.reject! { |x| x == item }
     end
