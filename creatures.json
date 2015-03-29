@@ -1,6 +1,7 @@
 {
 	"rat": {
 		"name": "Rat",
+		"name_plural": "Rats",
 		"hp": 3,
 		"strength": 5,
 		"agility": 3,
