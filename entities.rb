@@ -1,8 +1,24 @@
-class Item
-  attr_reader :name, :description
+class Entity
+  attr_reader :description
+  def initialize(name = '', description = '', name_plural = nil)
+    @name, @name_plural, @description = name, name_plural, description
+    @name_plural ||= @name
+  end
+
+  def name(quantity = 1)
+    if quantity.is_a?(Integer) && quantity > 1
+      "#{quantity.to_s} #{@name_plural}"
+    else
+      @name
+    end
+  end
+end
+
+class Item < Entity
   def initialize(opts)
     opts = { name: '', description: '' }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
+    super(opts[:name], opts[:description])
   end
 end
 
@@ -24,13 +40,14 @@ class Armor < Item
   end
 end
 
-class Creature
-  attr_reader :name, :description, :xp
+class Creature < Entity
+  attr_reader :xp
   attr_accessor :hp, :strength, :agility, :evasion, :weapon, :armor, :items, :hostile
   def initialize(opts)
     opts = { name: '', description: '', hp: 1, strength: 1, agility: 1,
       evasion: 0, xp: 0, weapon: nil, armor: nil, hostile: false, items: [] }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
+    super(opts[:name], opts[:description])
   end
 
   # Attack the target creature. Returns the damage done, or nil for a miss
