@@ -93,7 +93,7 @@ def parse_take(player, item_name, from = nil, container_name = 'here')
       parse_equip(player, item_name)
     else
       puts "You take the #{$items[item[0]].name}."
-      player.items << [item[0], item[1]]
+      player.items << item
       container.items.reject! { |x| x == item }
     end
   else
