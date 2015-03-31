@@ -60,6 +60,8 @@ def load(player_name)
       # We use "player" as the key and not player_name to stop
       # id conflicts (accidental or deliberate)
       player = Player.new((v.internalize_keys).merge!({name: player_name}))
+      # Convert major stat to symbol from string
+      player.major_stat = player.major_stat.intern
     end
   end
   return player
@@ -79,6 +81,7 @@ def save(player)
     "agility" => player.agility,
     "evasion" => player.evasion,
     "level" => player.level,
+    "major_stat" => player.major_stat,
     "xp" => player.xp,
     "area" => player.area,
     "items" => player.items

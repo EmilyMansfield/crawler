@@ -55,7 +55,7 @@ class Creature
 end
 
 class Player < Creature
-  attr_accessor :area, :container, :enemy, :level
+  attr_accessor :area, :container, :enemy, :level, :major_stat
   def initialize(opts)
     opts = { area: 'area_01', description: "It's you", container: 'here',
       enemy: nil, level: 1, major_stat: :strength }.merge(opts)
