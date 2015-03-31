@@ -43,8 +43,10 @@ end
 def load(player_name)
   # Create a new player if that player doesn't exist
   unless File.exist?(player_name + ".json")
+    puts "Specialise in (S)trength or (A)gility?"
     return Player.new(name: player_name, hp: 15, strength: 4, agility: 4,
-      evasion: 1.0/64, level: 1, xp: 0, area: "area_01") 
+      evasion: 1.0/64, level: 1, xp: 0, area: "area_01",
+      major_stat: {'s'=>:strength,'a'=>:agility}[gets.chomp!.downcase[0]])
   end
   player = nil
   $save_data = File.open(player_name + ".json") { |f| JSON.load f }
@@ -58,6 +60,8 @@ def load(player_name)
       # We use "player" as the key and not player_name to stop
       # id conflicts (accidental or deliberate)
       player = Player.new((v.internalize_keys).merge!({name: player_name}))
+      # Convert major stat to symbol from string
+      player.major_stat = player.major_stat.intern
     end
   end
   return player
@@ -77,6 +81,7 @@ def save(player)
     "agility" => player.agility,
     "evasion" => player.evasion,
     "level" => player.level,
+    "major_stat" => player.major_stat,
     "xp" => player.xp,
     "area" => player.area,
     "items" => player.items

@@ -72,10 +72,10 @@ class Creature < Entity
 end
 
 class Player < Creature
-  attr_accessor :area, :container, :enemy, :level
+  attr_accessor :area, :container, :enemy, :level, :major_stat
   def initialize(opts)
     opts = { area: 'area_01', description: "It's you", container: 'here',
-      enemy: nil, level: 1 }.merge(opts)
+      enemy: nil, level: 1, major_stat: :strength }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
     super(opts)
   end
@@ -89,7 +89,11 @@ class Player < Creature
       # This assignment is necessary as blocks/procs can't access their arguments
       # within themselves and we need to know the length of the longest
       # stat to tabulate correctly
-      stats = [[:@strength, 6], [:@agility, 6], [:@hp, 6*1.3]]
+      stats = [
+        [:@strength, (@major_stat == :strength ? 8 : 6)],
+        [:@agility, (@major_stat == :agility ? 8 : 6)],
+        [:@hp, 6*1.3]
+      ]
       stats.each do |x|
         before = self.instance_variable_get(x[0])
         after = (before + 1 + x[1] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
