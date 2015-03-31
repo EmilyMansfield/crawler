@@ -46,7 +46,7 @@ def load(player_name)
     puts "Specialise in (S)trength or (A)gility?"
     return Player.new(name: player_name, hp: 15, strength: 4, agility: 4,
       evasion: 1.0/64, level: 1, xp: 0, area: "area_01",
-      major_stat: {'s'=>:strength,'a'=>:agility}[gets.chomp!.downcase[0]]) 
+      major_stat: {'s'=>:strength,'a'=>:agility}[gets.chomp!.downcase[0]])
   end
   player = nil
   $save_data = File.open(player_name + ".json") { |f| JSON.load f }
