@@ -79,10 +79,14 @@ def parse_search(player, container_name = nil)
 
   container = convert_command_target(player, container_name, true)
 
-  print "There #{container.items[0][1] == 1 ? 'is ' : 'are '}"
-  print "nothing" if container.items.empty?
-  print format_list(container.items, '#{self[1] == 1 ? "a " : ""}#{$items[self[0]].name(self[1])}')
-  puts " here."
+  if container.items.empty?
+    puts "There is nothing here."
+  else
+    print "There #{container.items[0][1] == 1 ? 'is ' : 'are '}"
+    print "nothing" if container.items.empty?
+    print format_list(container.items, '#{self[1] == 1 ? "a " : ""}#{$items[self[0]].name(self[1])}')
+    puts " here."
+  end
 end
 
 def parse_take(player, item_name, from = nil, container_name = 'here')
