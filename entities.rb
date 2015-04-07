@@ -46,11 +46,12 @@ end
 
 class Creature < Entity
   attr_reader :xp
-  attr_accessor :hp, :strength, :agility, :evasion, :weapon, :armor, :items, :hostile
+  attr_accessor :hp, :hp_max, :strength, :agility, :evasion, :weapon, :armor, :items, :hostile
   def initialize(opts)
     opts = { name: '', description: '', hp: 1, strength: 1, agility: 1,
       evasion: 0, xp: 0, weapon: nil, armor: nil, hostile: false, items: [] }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
+    @hp_max = @hp
     super(opts[:name], opts[:description], opts[:name_plural])
   end
 
