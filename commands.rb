@@ -91,7 +91,7 @@ end
 
 def parse_take(player, item_name, from = nil, container_name = 'here')
   container = convert_command_target(player, container_name, true)
-  item = container.items.find { |x| $items[x[0]].name.downcase == item_name }
+  item = container.items.find { |x| $items[x[0]].is_called? item_name }
   if item
     if container == player
       parse_equip(player, item_name)

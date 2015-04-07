@@ -12,6 +12,10 @@ class Entity
       @name
     end
   end
+
+  def is_called?(name)
+    @name.downcase == name || @name_plural.downcase == name.downcase
+  end
 end
 
 class Item < Entity

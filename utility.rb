@@ -29,11 +29,11 @@ def convert_command_target(player, target, containers_only = false)
     # - Item in the player's surroundings
     # - Item in the player's current container
     # If still the target is not found, return nil
-    if (creature = $areas[player.area].creatures.find { |x| x[1].name.downcase == target })
+    if (creature = $areas[player.area].creatures.find { |x| x[1].is_called? target })
       creature[1]
-    elsif (item = $areas[player.area].items.find { |x| $items[x[0]].name.downcase == target  })
+    elsif (item = $areas[player.area].items.find { |x| $items[x[0]].is_called? target })
       $items[item[0]]
-    elsif (item = player.items.find { |x| $items[x[0]].name.downcase == target })
+    elsif (item = player.items.find { |x| $items[x[0]].is_called? target})
       $items[item[0]]
     else
       nil
