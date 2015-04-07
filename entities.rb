@@ -103,6 +103,12 @@ class Player < Creature
         before = self.instance_variable_get(x[0])
         after = (before + 1 + x[2] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
         self.instance_variable_set(x[0], after)
+        # Increase corresponding current stat if increasing a maximum
+        # Currently only affects hp but I like to be general
+        if x[0].to_s.include? "_max"
+          var_name = x[0].to_s.chomp('_max').intern
+          self.instance_variable_set(var_name, self.instance_variable_get(var_name) + after - before)
+        end
         print x[1]
         print ' '*(stats.max{|a,b|a[1].length<=>b[1].length}[1].length-x[1].length+1)
         puts "#{before}\t-> #{after}"
