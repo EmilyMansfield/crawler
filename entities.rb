@@ -95,16 +95,16 @@ class Player < Creature
       # within themselves and we need to know the length of the longest
       # stat to tabulate correctly
       stats = [
-        [:@strength, (@major_stat == :strength ? 8 : 6)],
-        [:@agility, (@major_stat == :agility ? 8 : 6)],
-        [:@hp, 6*1.3]
+        [:@strength, "Strength", (@major_stat == :strength ? 8 : 6)],
+        [:@agility, "Agility", (@major_stat == :agility ? 8 : 6)],
+        [:@hp_max, "Health", 6*1.3]
       ]
       stats.each do |x|
         before = self.instance_variable_get(x[0])
-        after = (before + 1 + x[1] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
+        after = (before + 1 + x[2] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
         self.instance_variable_set(x[0], after)
-        print x[0].to_s[1..-1].capitalize
-        print ' '*(stats.max{|a,b|a[0].length<=>b[0].length}[0].length-x[0].length+1)
+        print x[1]
+        print ' '*(stats.max{|a,b|a[1].length<=>b[1].length}[1].length-x[1].length+1)
         puts "#{before}\t-> #{after}"
       end
     end
