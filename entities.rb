@@ -87,32 +87,34 @@ class Player < Creature
 
   def increase_xp(xp)
     @xp += xp
-    loop do
-      break if @xp < 1.5*@level**3
-      # Enough xp to level up
-      @level += 1
-      # This assignment is necessary as blocks/procs can't access their arguments
-      # within themselves and we need to know the length of the longest
-      # stat to tabulate correctly
-      stats = [
-        [:@strength, "Strength", (@major_stat == :strength ? 8 : 6)],
-        [:@agility, "Agility", (@major_stat == :agility ? 8 : 6)],
-        [:@hp_max, "Health", 6*1.3]
-      ]
-      stats.each do |x|
-        before = self.instance_variable_get(x[0])
-        after = (before + 1 + x[2] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
-        self.instance_variable_set(x[0], after)
-        # Increase corresponding current stat if increasing a maximum
-        # Currently only affects hp but I like to be general
-        if x[0].to_s.include? "_max"
-          var_name = x[0].to_s.chomp('_max').intern
-          self.instance_variable_set(var_name, self.instance_variable_get(var_name) + after - before)
-        end
-        print x[1]
-        print ' '*(stats.max{|a,b|a[1].length<=>b[1].length}[1].length-x[1].length+1)
-        puts "#{before}\t-> #{after}"
+    start_level = @level
+    stats = [
+      [:@strength, "Strength", (@major_stat == :strength ? 8 : 6)],
+      [:@agility, "Agility", (@major_stat == :agility ? 8 : 6)],
+      [:@hp_max, "Health", 6*1.3]
+    ]
+    stats.each do |x|
+      old_stat = self.instance_variable_get(x[0])
+      new_stat = old_stat
+      # Calculate the new level for every stat instead of the new stat
+      # for every level, which makes keeping track of the start of each
+      # stat more complicated 
+      @level = start_level
+      loop do
+        break if @xp < 1.5*@level**3
+        @level += 1
+        new_stat += (1 + x[2] * Math.tanh(@level / 30.0) * ((@level % 2) + 1)).to_i
       end
+      self.instance_variable_set(x[0], new_stat)
+      # Increase corresponding current stat if increasing a maximum
+      # Currently only affects hp but I like to be general      
+      if x[0].to_s.include? "_max"
+        var_name = x[0].to_s.chomp('_max').intern
+        self.instance_variable_set(var_name, self.instance_variable_get(var_name) + new_stat - old_stat)
+      end
+      print x[1]
+      print ' '*(stats.max{|a,b|a[1].length<=>b[1].length}[1].length-x[1].length+1)
+      puts "#{old_stat}\t-> #{new_stat}"
     end
   end
 end
