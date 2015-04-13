@@ -78,6 +78,7 @@ def save(player)
   # Add the player
   save_data["player"] = {
     "hp" => player.hp,
+    "hp_max" => player.hp_max,
     "strength" => player.strength,
     "agility" => player.agility,
     "evasion" => player.evasion,
