@@ -70,9 +70,17 @@ $mode_explore = Mode.new([
   [/quit|exit/, :parse_exit]],
   /from|at/
 )
+
 $mode_combat = Mode.new([
   [/attack|strike/, :parse_strike],
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what'],
   [/flee/, :parse_flee]]
+)
+
+$mode_menu = Mode.new([
+  [/stats{0,1}|attributes{0,1}/, :parse_show_stat, ':all'],
+  [/hp|health/, :parse_show_stat, ':hp'],
+  [/str|strength/, :parse_show_stat, ':strength'],
+  [/agl|agility/, :parse_show_stat, ':agility']]
 )
