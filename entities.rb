@@ -112,9 +112,11 @@ class Player < Creature
         var_name = x[0].to_s.chomp('_max').intern
         self.instance_variable_set(var_name, self.instance_variable_get(var_name) + new_stat - old_stat)
       end
-      print x[1]
-      print ' '*(stats.max{|a,b|a[1].length<=>b[1].length}[1].length-x[1].length+1)
-      puts "#{old_stat}\t-> #{new_stat}"
+      if @level != start_level
+        print x[1]
+        print ' '*(stats.max{|a,b|a[1].length<=>b[1].length}[1].length-x[1].length+1)
+        puts "#{old_stat}\t-> #{new_stat}"
+      end
     end
   end
 end
