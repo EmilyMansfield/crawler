@@ -97,7 +97,13 @@ def parse_take(player, item_name, from = nil, container_name = 'here')
       parse_equip(player, item_name)
     else
       puts "You take the #{$items[item[0]].name(item[1])}."
-      player.items << item
+      # Increment quantity if item is already in inventory
+      existing_item = player.items.find { |x| $items[x[0]].is_called? item_name }
+      if existing_item
+        existing_item[1] += item[1]
+      else
+        player.items << item
+      end
       container.items.reject! { |x| x == item }
     end
   else
