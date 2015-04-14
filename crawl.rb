@@ -13,10 +13,7 @@ $player = load(gets.chomp)
 
 # explore - Movement and environment interaction
 # combat - Fighting an enemy
-# menu - Displaying information about the player
 $mode = :explore
-# Contains the mode that was active before the menu was opened
-$previous_mode = :explore
 
 $displayed_description = false
 loop do
@@ -79,8 +76,5 @@ loop do
         puts "You evade the attack."
       end
     end
-  when :menu
-    print "$ "
-    redo if $mode_menu.parse($player, gets.chomp!) == :invalid
   end
 end
