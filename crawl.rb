@@ -15,6 +15,8 @@ $player = load(gets.chomp)
 # combat - Fighting an enemy
 # menu - Displaying information about the player
 $mode = :explore
+# Contains the mode that was active before the menu was opened
+$previous_mode = :explore
 
 $displayed_description = false
 loop do

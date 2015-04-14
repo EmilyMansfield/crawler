@@ -67,7 +67,8 @@ $mode_explore = Mode.new([
   [/examine|inspect/, :parse_examine, 'input[1]', 'what'],
   [/go/, :parse_go, 'input[1]', 'where'],
   [/look/, :parse_look, 'input[1..2]'],
-  [/quit|exit/, :parse_exit]],
+  [/quit|exit/, :parse_exit],
+  [/menu|pause/, :parse_open_menu]],
   /from|at/
 )
 
@@ -75,12 +76,14 @@ $mode_combat = Mode.new([
   [/attack|strike/, :parse_strike],
   [/wield|equip|wear/, :parse_equip, 'input[1]', 'what'],
   [/examine|inspect/, :parse_examine, 'input[1]', 'what'],
-  [/flee/, :parse_flee]]
+  [/flee/, :parse_flee],
+  [/menu|pause/, :parse_open_menu]]
 )
 
 $mode_menu = Mode.new([
   [/stats{0,1}|attributes{0,1}/, :parse_show_stat, ':all'],
   [/hp|health/, :parse_show_stat, ':hp'],
   [/str|strength/, :parse_show_stat, ':strength'],
-  [/agl|agility/, :parse_show_stat, ':agility']]
+  [/agl|agility/, :parse_show_stat, ':agility'],
+  [/close|return|back|resume/, :parse_close_menu]]
 )
