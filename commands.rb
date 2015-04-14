@@ -159,14 +159,3 @@ def parse_show_stat(player, stat)
     [:hp, :strength, :agility].each { |s| parse_show_stat(player, s) }
   end
 end
-
-def parse_open_menu(player)
-  $previous_mode = $mode
-  $mode = :menu
-  :change_mode
-end
-
-def parse_close_menu(player)
-  $mode = $previous_mode
-  :change_mode
-end
