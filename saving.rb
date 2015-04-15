@@ -1,3 +1,4 @@
+require 'json'
 require_relative 'entities'
 
 class Hash
@@ -77,6 +78,7 @@ def save(player)
   # Add the player
   save_data["player"] = {
     "hp" => player.hp,
+    "hp_max" => player.hp_max,
     "strength" => player.strength,
     "agility" => player.agility,
     "evasion" => player.evasion,
@@ -88,5 +90,5 @@ def save(player)
   }
   save_data["player"]["weapon"] = player.weapon if player.weapon
   save_data["player"]["armor"] = player.armor if player.armor
-  File.open(player.name + ".json", "w") { |f| f.write(JSON.generate(save_data)) }
+  File.open(player.name + ".json", "w") { |f| f.write(JSON.pretty_generate(save_data)) }
 end

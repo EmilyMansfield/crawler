@@ -1,6 +1,4 @@
 #!/usr/bin/ruby
-require 'json'
-
 require_relative 'modes'
 require_relative 'entities'
 require_relative 'saving'

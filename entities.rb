@@ -51,7 +51,7 @@ class Creature < Entity
     opts = { name: '', description: '', hp: 1, strength: 1, agility: 1,
       evasion: 0, xp: 0, weapon: nil, armor: nil, hostile: false, items: [] }.merge(opts)
     opts.each { |k,v| instance_variable_set(('@'+k.to_s).to_sym, v) }
-    @hp_max = @hp
+    @hp_max ||= @hp
     super(opts[:name], opts[:description], opts[:name_plural])
   end
 
