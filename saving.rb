@@ -55,7 +55,12 @@ def load(player_name)
     if $areas.has_key? k
       # It's an area so modify the area with the data
       $areas[k].items = v["items"] if v["items"]
-      $areas[k].creatures = v["creatures"].map { |x| [x, $creatures[x].dup] } if v["creatures"]
+      $areas[k].creatures = []
+      v["creatures"].each do |l, w|
+        creature = $creatures[l].dup
+        w.each { |m, x| creature.instance_variable_set(("@"+m).intern, x) }
+        $areas[k].creatures << [l, creature]
+      end if v["creatures"]
     elsif k == "player"
       # It's the player so create the player from the data
       # We use "player" as the key and not player_name to stop
@@ -73,7 +78,10 @@ def save(player)
   save_data = {}
   # Add the modified areas
   $areas.each do |k, v|
-    save_data[k] = {"items" => v.items, "creatures" => v.creatures.map { |x| x[0] }} if v.modified
+    save_data[k] = {
+      "items" => v.items,
+      "creatures" => Hash[v.creatures.map { |x| [x[0], x[1].to_hash] }]
+    } if v.modified
   end
   # Add the player
   save_data["player"] = {

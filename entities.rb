@@ -74,6 +74,14 @@ class Creature < Entity
       nil
     end
   end
+
+  # Return a Hash of selected instance variables for saving to a file
+  def to_hash
+    {
+      "hp" => @hp,
+      "hostile" => @hostile
+    }
+  end
 end
 
 class Player < Creature
