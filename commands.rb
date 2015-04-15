@@ -147,15 +147,15 @@ def parse_flee(player)
 end
 
 # Stat should be a symbol :hp, :strength, :agility, :all
-def parse_show_stat(player, stat)
+def parse_show_stat(player, stat, format = false)
   case stat
   when :hp
-    puts "Health:   #{player.hp} / #{player.hp_max}"
+    puts "#{format ? 'Health:   ' : ''}#{player.hp} / #{player.hp_max}"
   when :strength
-    puts "Strength: #{player.strength}"
+    puts "#{format ? 'Strength: ' : ''}#{player.strength}"
   when :agility
-    puts "Agility:  #{player.agility}"
+    puts "#{format ? 'Agility   ' : ''}#{player.agility}"
   when :all
-    [:hp, :strength, :agility].each { |s| parse_show_stat(player, s) }
+    [:hp, :strength, :agility].each { |s| parse_show_stat(player, s, true) }
   end
 end
