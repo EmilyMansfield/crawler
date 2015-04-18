@@ -158,4 +158,5 @@ def parse_show_stat(player, stat, format = false)
   when :all
     [:hp, :strength, :agility].each { |s| parse_show_stat(player, s, true) }
   end
+  return :invalid
 end
